@@ -11,7 +11,8 @@ module Hawk
     @closed: bool
     attr_reader configuration: Configuration
     attr_reader diagnostics: Diagnostics
-    def initialize: (Configuration, delivery: _Delivery) -> void
+    def self.build: (Configuration) -> Client
+    def initialize: (Configuration, delivery: _Delivery, ?diagnostics: Diagnostics?) -> void
     def current_scope: () -> Scope
     def set_context: (raw_context) -> void
     def set_user: (raw_context?) -> void

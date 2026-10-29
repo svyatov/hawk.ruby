@@ -32,4 +32,4 @@ Naming/AccessorMethodName:
     - lib/hawk/scope.rb
 
 Naming/PredicateMethod:
-  AllowedMethods: [call, flush, close, enqueue, consume_escape]
+  AllowedMethods: [call, flush, close, enqueue, accept, consume_escape]

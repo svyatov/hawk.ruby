@@ -1,0 +1,32 @@
+module Hawk
+  interface _Transport
+    def available?: () -> bool
+    def send: (String) -> Symbol
+  end
+
+  class Transport
+    class ResponseTooLarge < StandardError
+    end
+
+    @configuration: Configuration
+    @uri: URI::HTTP?
+    @mutex: Thread::Mutex
+    @pid: Integer
+    @cooldown_until: Float
+    def initialize: (Configuration) -> void
+    def available?: () -> bool
+    def send: (String) -> Symbol
+
+    private
+
+    def reset: () -> void
+    def monotonic: () -> Float
+    def connection: (URI::HTTP) -> Net::HTTP
+    def request: (String) -> Symbol
+    def handle: (Net::HTTPResponse) -> Symbol
+    def response_body: (Net::HTTPResponse) -> String
+    def success?: (String) -> bool
+    def cooldown: (String?) -> void
+    def retry_delay: (String?) -> Float
+  end
+end

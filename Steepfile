@@ -8,4 +8,7 @@ target :hawk do
   library "uri"
   library "open3"
   library "securerandom"
+  library "net-http"
+  library "timeout"
+  library "time"
 end

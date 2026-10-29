@@ -1,4 +1,15 @@
 module Hawk
+  self.@client: Client?
   VERSION: String
   type json = nil | bool | Integer | Float | String | Array[json] | Hash[String, json]
+  def self.client: () -> Client?
+  def self.init: () { (Configuration) -> void } -> Client
+  def self.capture_exception: (Exception, ?context: raw_context, ?user: raw_context?, ?level: Symbol) -> String?
+  def self.capture_message: (String, ?context: raw_context, ?user: raw_context?, ?level: Symbol) -> String?
+  def self.set_context: (raw_context) -> void
+  def self.set_user: (raw_context?) -> void
+  def self.with_scope: [A] () { (Scope) -> A } -> A
+  def self.capture: [A] () { () -> A } -> A
+  def self.flush: (?timeout: Float?) -> bool
+  def self.close: (?timeout: Float?) -> bool
 end

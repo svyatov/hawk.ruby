@@ -5,12 +5,18 @@ module Hawk
   class Client
     attr_reader :configuration, :diagnostics
 
-    def initialize(configuration, delivery:)
+    def self.build(configuration)
+      diagnostics = Diagnostics.new(configuration.diagnostic_callback)
+      delivery = Delivery.new(configuration, transport: Transport.new(configuration), diagnostics: diagnostics)
+      new(configuration, delivery: delivery, diagnostics: diagnostics)
+    end
+
+    def initialize(configuration, delivery:, diagnostics: nil)
       configuration.validate!
       configuration.release = Release.detect(configuration)
       @configuration = configuration
       @delivery = delivery
-      @diagnostics = Diagnostics.new(configuration.diagnostic_callback)
+      @diagnostics = diagnostics || Diagnostics.new(configuration.diagnostic_callback)
       @store = ScopeStore.new(configuration, SecureRandom.uuid)
       @closed = false
     end

@@ -1,0 +1,27 @@
+module Hawk
+  class Delivery
+    @configuration: Configuration
+    @transport: _Transport
+    @diagnostics: Diagnostics
+    @mutex: Thread::Mutex
+    @condition: Thread::ConditionVariable
+    @queue: Array[String]
+    @pending: Integer
+    @worker: Thread?
+    @pid: Integer
+    @closed: bool
+    def initialize: (Configuration, transport: _Transport, diagnostics: Diagnostics) -> void
+    def enqueue: (String, String) -> bool
+    def flush: (timeout: Float) -> bool
+    def close: (timeout: Float) -> bool
+
+    private
+
+    def reset: () -> void
+    def monotonic: () -> Float
+    def accept: (String) -> bool
+    def next_event: () -> String?
+    def work: () -> void
+    def deliver: (String) -> void
+  end
+end
