@@ -13,14 +13,20 @@ module HawkRelease
   class Publication
     def initialize(directory, tag:, commit:, repository:)
       @gem = File.join(directory, "hawk-ruby-#{Hawk::VERSION}.gem")
-      @assets = [@gem, File.join(directory, "SHA256SUMS")]
+      @assets = [@gem, File.join(directory, "sbom.cdx.json"), File.join(directory, "SHA256SUMS")]
+      @notes = File.join(directory, "release-notes.md")
       @tag = tag
       @commit = commit
       @repository = repository
     end
 
-    def publish
-      run!("gem", "push", @gem) unless registered?(lookup)
+    def publish_gem(attestation:)
+      raise Failure, "Missing gem attestation" unless File.file?(attestation)
+
+      run!("gem", "push", @gem, "--attestation", attestation) unless registered?(lookup)
+    end
+
+    def publish_github
       release = github_release || create_release
       missing_assets(release).each { |path| run!("gh", "release", "upload", @tag, path, "--repo", @repository) }
       run!("gh", "release", "edit", @tag, "--draft=false", "--repo", @repository) if release.fetch("draft")
@@ -79,7 +85,7 @@ module HawkRelease
 
     def create_release
       run!("gh", "release", "create", @tag, "--verify-tag", "--target", @commit, "--title", @tag,
-           "--draft", "--notes-file", "CHANGELOG.md", "--repo", @repository)
+           "--draft", "--notes-file", @notes, "--repo", @repository)
       github_release || raise(Failure, "Created GitHub release could not be read")
     end
 

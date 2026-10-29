@@ -19,11 +19,6 @@ jobs:
     needs: verify
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    permissions:
-      contents: read
-      id-token: write
-      attestations: write
-      artifact-metadata: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -32,31 +27,36 @@ jobs:
       - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
         with:
           ruby-version: "4.0"
-          bundler-cache: true
       - name: Verify the release tag
         run: ruby script/verify_release.rb
       - run: gem build hawk-ruby.gemspec
-      - name: Hash the release artifact
-        run: sha256sum hawk-ruby-*.gem > SHA256SUMS
-      - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
-        with:
-          subject-path: hawk-ruby-*.gem
+      - name: Inventory the built gem
+        run: ruby script/release_inventory.rb hawk-ruby-*.gem > sbom.cdx.json
+      - name: Extract this version's notes
+        run: node .github/scripts/release-notes.mjs "$GITHUB_REF_NAME" > release-notes.md
+      - name: Hash the release artifacts
+        run: sha256sum hawk-ruby-*.gem sbom.cdx.json > SHA256SUMS
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: release-artifacts
           path: |
             hawk-ruby-*.gem
+            sbom.cdx.json
             SHA256SUMS
+            release-notes.md
           if-no-files-found: error
           retention-days: 14
+
   publish:
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment: release
     permissions:
-      contents: write
+      contents: read
       id-token: write
+      attestations: write
+      artifact-metadata: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -71,9 +71,45 @@ jobs:
       - name: Verify the archived bytes
         working-directory: pkg
         run: sha256sum --check SHA256SUMS
+      - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        id: provenance
+        with:
+          subject-path: pkg/hawk-ruby-*.gem
       - uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
-      - name: Publish or resume the release
-        run: ruby script/publish_release.rb
+      - name: Publish or resume the gem
+        run: ruby script/publish_release.rb gem
+        env:
+          GEM_ATTESTATION: ${{ steps.provenance.outputs.bundle-path }}
+          GH_REPO: ${{ github.repository }}
+
+  github-release:
+    needs: publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: release-artifacts
+          path: pkg/
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
+        with:
+          ruby-version: "4.0"
+      - name: Verify the archived bytes
+        working-directory: pkg
+        run: sha256sum --check SHA256SUMS
+      - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-checksums: pkg/SHA256SUMS
+      - name: Publish or resume the GitHub release
+        run: ruby script/publish_release.rb github
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
