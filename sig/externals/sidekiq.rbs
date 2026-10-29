@@ -1,0 +1,5 @@
+module Sidekiq
+  VERSION: String
+  def self.configure_client: () { (::Hawk::_SidekiqConfig) -> void } -> void
+  def self.configure_server: () { (::Hawk::_SidekiqConfig) -> void } -> void
+end

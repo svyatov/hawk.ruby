@@ -1,0 +1,29 @@
+module Hawk
+  interface _MiddlewareChain
+    def add: (Class) -> void
+  end
+
+  interface _SidekiqConfig
+    def client_middleware: () { (_MiddlewareChain) -> void } -> void
+    def server_middleware: () { (_MiddlewareChain) -> void } -> void
+    def error_handlers: () -> Array[top]
+  end
+
+  module Sidekiq
+    def self.install: () -> void
+    def self.register_client: (_SidekiqConfig) -> void
+    def self.register: (_SidekiqConfig) -> void
+    def self.client: () -> Client?
+    def self.metadata: (Client, Hash[String, top]) -> payload
+    class ClientMiddleware
+      def call: [A] (top, Hash[String, top], String, ?top) { () -> A } -> A
+    end
+    class ServerMiddleware
+      def call: [A] (top, Hash[String, top], String) { () -> A } -> A
+    end
+    class ErrorHandler
+      def call: (Exception, Hash[Symbol, top], ?top) -> void
+    end
+    ERROR_HANDLER: ErrorHandler
+  end
+end

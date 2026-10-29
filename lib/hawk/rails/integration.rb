@@ -20,6 +20,7 @@ module Hawk
       ErrorSubscriber.install
       ActionCable.install
       ActiveJob.install
+      require_relative "../sidekiq" if defined?(::Sidekiq)
       nil
     end
   end
