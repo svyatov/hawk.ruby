@@ -3,4 +3,8 @@
 target :hawk do
   check "lib"
   signature "sig"
+  library "base64"
+  library "json"
+  library "uri"
+  library "open3"
 end

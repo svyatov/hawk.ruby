@@ -11,4 +11,8 @@ Style/StringLiterals:
   EnforcedStyle: double_quotes
 
 Metrics/MethodLength:
+  Max: 15
   CountAsOne: [array, hash, heredoc]
+
+Metrics/ClassLength:
+  Max: 150

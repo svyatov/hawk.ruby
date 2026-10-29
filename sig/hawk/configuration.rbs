@@ -1,0 +1,59 @@
+module Hawk
+  type raw_context = Hash[String | Symbol, top]
+  type payload = Hash[String, json]
+  type payload_hook = ^(payload) -> top
+
+  class Configuration
+    attr_accessor token: String?
+    attr_accessor endpoint: String?
+    attr_accessor environment: String
+    attr_accessor enabled_environments: Array[String]?
+    attr_accessor release: String?
+    attr_accessor detect_release: bool
+    attr_accessor sample_rate: Float
+    attr_accessor delivery_mode: Symbol
+    attr_accessor queue_capacity: Integer
+    attr_accessor source_roots: Array[String]
+    attr_accessor send_source: bool
+    attr_accessor connect_timeout: Float
+    attr_accessor read_timeout: Float
+    attr_accessor write_timeout: Float
+    attr_accessor flush_timeout: Float
+    attr_accessor limit_cooldown: Float
+    attr_accessor context: raw_context
+    attr_accessor user: raw_context?
+    attr_accessor ignored_exceptions: Array[String]
+    attr_accessor filter_parameters: Array[String | Regexp]
+    attr_accessor integrations: Hash[Symbol, bool]
+    attr_accessor global_errors: bool
+    attr_accessor before_send: payload_hook?
+    attr_accessor before_breadcrumb: payload_hook?
+    attr_accessor diagnostic_callback: (^(Hash[Symbol, Integer]) -> void)?
+    attr_accessor propagate_job_context: bool
+    attr_accessor include_request_body: bool
+    attr_accessor include_job_arguments: bool
+    attr_accessor include_headers: bool
+    attr_accessor include_cookies: bool
+    attr_accessor breadcrumbs_logger: bool
+    attr_accessor breadcrumbs_http: bool
+    attr_accessor breadcrumbs_rails: bool
+    attr_accessor logger_error_level: Integer?
+
+    def initialize: () -> void
+    def validate!: () -> void
+    def enabled?: () -> bool
+    def collector_uri: () -> URI::Generic
+    def integration_enabled?: (Symbol) -> bool
+
+    private
+
+    def allowed_uri?: (URI::Generic) -> bool
+    def initialize_identity: () -> void
+    def initialize_delivery: () -> void
+    def initialize_privacy: () -> void
+    def initialize_hooks: () -> void
+    def validate_delivery: () -> void
+    def valid_number?: (top) -> bool
+    def validate_callbacks: () -> void
+  end
+end

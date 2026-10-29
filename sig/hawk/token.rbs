@@ -1,0 +1,14 @@
+module Hawk
+  class ConfigurationError < ArgumentError
+  end
+
+  class Token
+    LABEL: Regexp
+    @integration_id: String
+    def self.decode: (String) -> Token
+    def self.integration_id: (top) -> String?
+    def self.valid_secret?: (top) -> bool
+    def initialize: (String) -> void
+    def endpoint: () -> URI::HTTPS
+  end
+end

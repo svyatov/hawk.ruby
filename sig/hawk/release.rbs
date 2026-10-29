@@ -1,0 +1,6 @@
+module Hawk
+  module Release
+    def self.detect: (Configuration) -> String?
+    def self.git_revision: () -> String?
+  end
+end

@@ -4,7 +4,7 @@ require "rake/testtask"
 
 Rake::TestTask.new(:test) do |task|
   task.libs << "lib" << "test"
-  task.pattern = ENV.fetch("TEST", "test/**/*_test.rb")
+  task.pattern = ENV.delete("TEST") || "test/**/*_test.rb"
   task.warning = true
 end
 
