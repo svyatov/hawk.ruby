@@ -5,6 +5,7 @@ require "active_support/parameter_filter"
 require_relative "error_subscriber"
 require_relative "action_cable"
 require_relative "active_job"
+require_relative "../breadcrumbs/rails"
 
 module Hawk
   # Framework filtering is injected without changing the user's before_send hook.
@@ -17,9 +18,15 @@ module Hawk
 
       filter = ActiveSupport::ParameterFilter.new(application.config.filter_parameters)
       configuration.framework_filter = ->(payload) { filter.filter(payload) }
+      activate_integrations(configuration)
+      nil
+    end
+
+    def self.activate_integrations(configuration)
       ErrorSubscriber.install
       ActionCable.install
       ActiveJob.install
+      Breadcrumbs::Rails.install if configuration.breadcrumbs_rails
       require_relative "../sidekiq" if defined?(::Sidekiq)
       require_relative "../resque" if defined?(::Resque)
       require_relative "../delayed_job" if defined?(::Delayed::Worker)

@@ -3,8 +3,9 @@
 module Hawk
   # Counters and callbacks contain no event data or collector credentials.
   class Diagnostics
-    def initialize(callback = nil)
+    def initialize(callback = nil, logger: nil)
       @callback = callback
+      @logger = logger
       reset
     end
 
@@ -26,14 +27,20 @@ module Hawk
 
     def notify
       callback = @callback
-      return unless callback
+      logger = @logger
+      return unless callback || logger
 
       acquired = @mutex.synchronize { !@notifying && (@notifying = true) }
       return unless acquired
 
-      callback.call(snapshot)
+      Breadcrumbs.guard(:sdk) { emit }
     ensure
       @mutex.synchronize { @notifying = false } if acquired
+    end
+
+    def emit
+      @callback&.call(snapshot)
+      @logger&.warn("Hawk delivery counters: #{JSON.generate(snapshot)}")
     end
 
     def reset

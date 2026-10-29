@@ -46,6 +46,7 @@ class RailsActiveJobTest < RailsCaptureTest
     Hawk.set_context(section: "checkout", password: "hidden")
     Hawk.set_user(id: "user-12")
     Hawk.client.current_scope.addons["request"] = { "path" => "/checkout" }
+    Hawk.add_breadcrumb(message: "enqueue-only")
     job = HawkContextJob.new("original", 12)
     serialized = job.serialize
 
@@ -58,7 +59,7 @@ class RailsActiveJobTest < RailsCaptureTest
     assert_equal "checkout", scope.context["section"]
     assert_equal "user-12", scope.user["id"]
     assert_nil scope.addons["request"]
-    assert_empty scope.breadcrumbs
+    refute_includes scope.breadcrumbs.map { |entry| entry["message"] }, "enqueue-only"
   end
 
   def test_discard_exhaustion_and_escaping_failure_each_report_once

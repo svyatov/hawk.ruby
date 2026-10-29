@@ -4,6 +4,7 @@ module Hawk
   type payload_hook = ^(payload) -> top
 
   class Configuration
+    attr_accessor diagnostic_logger: _DiagnosticLogger?
     attr_accessor token: String?
     attr_accessor endpoint: String?
     attr_accessor environment: String

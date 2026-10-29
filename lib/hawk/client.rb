@@ -6,7 +6,7 @@ module Hawk
     attr_reader :configuration, :diagnostics
 
     def self.build(configuration)
-      diagnostics = Diagnostics.new(configuration.diagnostic_callback)
+      diagnostics = Diagnostics.new(configuration.diagnostic_callback, logger: configuration.diagnostic_logger)
       delivery = Delivery.new(configuration, transport: Transport.new(configuration), diagnostics: diagnostics)
       new(configuration, delivery: delivery, diagnostics: diagnostics)
     end
@@ -16,7 +16,8 @@ module Hawk
       configuration.release = Release.detect(configuration)
       @configuration = configuration
       @delivery = delivery
-      @diagnostics = diagnostics || Diagnostics.new(configuration.diagnostic_callback)
+      @diagnostics = diagnostics || Diagnostics.new(configuration.diagnostic_callback,
+                                                    logger: configuration.diagnostic_logger)
       @store = ScopeStore.new(configuration, SecureRandom.uuid)
       @closed = false
     end
@@ -71,6 +72,10 @@ module Hawk
 
     def capture_message(message, context: {}, user: nil, level: :info)
       dispatch(message: message, context: context, user: user, level: level)
+    end
+
+    def add_breadcrumb(entry)
+      Breadcrumbs.add(self, entry)
     end
 
     def capture(&)

@@ -17,6 +17,7 @@ module Hawk
     def enabled?: () -> bool
     def using_scope: [A] (Scope) { () -> A } -> A
     def set_context: (raw_context) -> void
+    def add_breadcrumb: (raw_context) -> void
     def set_user: (raw_context?) -> void
     def with_scope: [A] () { (Scope) -> A } -> A
     def with_boundary: [A] (kind: Symbol, metadata: payload, ?inherit: bool) { () -> A } -> A

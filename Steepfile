@@ -11,4 +11,5 @@ target :hawk do
   library "net-http"
   library "timeout"
   library "time"
+  library "logger"
 end

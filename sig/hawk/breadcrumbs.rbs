@@ -1,0 +1,12 @@
+module Hawk
+  module Breadcrumbs
+    def self.install: (Configuration) -> void
+    def self.guard: [A] (Symbol) { () -> A } -> A
+    def self.suppressed?: (Symbol) -> bool
+    def self.client: (Symbol) -> Client?
+    def self.add: (Client, raw_context) -> void
+    private
+    def self.filtered: (Configuration, raw_context) -> payload?
+    def self.enabled?: (Configuration, Symbol) -> bool
+  end
+end

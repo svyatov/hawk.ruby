@@ -25,7 +25,7 @@ module Hawk
     def send(encoded)
       return :limited unless available?
 
-      Timeout.timeout(5.0) { request(encoded) }
+      Breadcrumbs.guard(:sdk) { Timeout.timeout(5.0) { request(encoded) } }
     rescue StandardError
       :failed
     end

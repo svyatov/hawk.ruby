@@ -1,19 +1,24 @@
 module Hawk
+  interface _DiagnosticLogger
+    def warn: (String) -> top
+  end
   type diagnostic_hook = ^(Hash[Symbol, Integer]) -> void
 
   class Diagnostics
+    @logger: _DiagnosticLogger?
     @callback: (^(Hash[Symbol, Integer]) -> void)?
     @pid: Integer
     @mutex: Thread::Mutex
     @counts: Hash[Symbol, Integer]
     @notifying: bool
-    def initialize: (?diagnostic_hook?) -> void
+    def initialize: (?diagnostic_hook?, ?logger: _DiagnosticLogger?) -> void
     def increment: (Symbol) -> void
     def snapshot: () -> Hash[Symbol, Integer]
 
     private
 
     def notify: () -> void
+    def emit: () -> void
     def reset: () -> void
   end
 end

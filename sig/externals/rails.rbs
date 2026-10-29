@@ -12,6 +12,9 @@ class Hawk::Railtie < ::Rails::Railtie
 end
 
 module ActiveSupport
+  module Notifications
+    def self.monotonic_subscribe: (Regexp) { (String, Float, Float, String, Hash[Symbol, top]) -> void } -> top
+  end
   def self.on_load: (Symbol) { (Class) -> void } -> void
   class ParameterFilter
     def initialize: (Array[top]) -> void

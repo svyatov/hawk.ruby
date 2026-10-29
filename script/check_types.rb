@@ -3,10 +3,14 @@
 require "csv"
 require "open3"
 
-abort "Steep check failed" unless system("bundle", "exec", "steep", "check", "-j", "2")
+checked, diagnostics, checked_status = Open3.capture3("bundle", "exec", "steep", "check", "-j", "2")
+$stdout.write(checked)
+$stderr.write(diagnostics)
+failed = !checked_status.success? || (checked + diagnostics).match?(/FATAL:|Unexpected error:/)
+abort "Steep check failed" if failed
 
 output, error, status = Open3.capture3("bundle", "exec", "steep", "stats", "--format=csv", "-j", "2")
-abort error unless status.success?
+abort error unless status.success? && !error.match?(/FATAL:|Unexpected error:/)
 
 rows = CSV.parse(output, headers: true)
 expected = Dir["lib/**/*.rb"]

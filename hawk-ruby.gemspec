@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "base64", ">= 0.2", "< 1"
   spec.add_dependency "json", ">= 2.7", "< 4"
+  spec.add_dependency "logger", ">= 1.6", "< 2"
   spec.add_dependency "net-http", ">= 0.4", "< 1"
   spec.add_dependency "securerandom", ">= 0.3", "< 1"
 end

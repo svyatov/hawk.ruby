@@ -1,0 +1,7 @@
+module Hawk::Breadcrumbs
+  module Rails
+    self.@installed: bool?
+    EVENTS: Regexp
+    def self.install: () -> void
+  end
+end

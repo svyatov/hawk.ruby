@@ -7,6 +7,7 @@ module Hawk
   def self.capture_exception: (Exception, ?context: raw_context, ?user: raw_context?, ?level: Symbol) -> String?
   def self.capture_message: (String, ?context: raw_context, ?user: raw_context?, ?level: Symbol) -> String?
   def self.set_context: (raw_context) -> void
+  def self.add_breadcrumb: (raw_context) -> void
   def self.set_user: (raw_context?) -> void
   def self.with_scope: [A] () { (Scope) -> A } -> A
   def self.capture: [A] () { () -> A } -> A

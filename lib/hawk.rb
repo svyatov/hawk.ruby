@@ -12,6 +12,7 @@ require_relative "hawk/diagnostics"
 require_relative "hawk/scope"
 require_relative "hawk/scope_store"
 require_relative "hawk/client"
+require_relative "hawk/breadcrumbs"
 require_relative "hawk/job_context"
 require_relative "hawk/boundary"
 require_relative "hawk/transport"
@@ -30,6 +31,7 @@ module Hawk
       replacement = Client.build(configuration)
       @client&.close
       @client = replacement
+      Breadcrumbs.install(configuration)
       ProcessHooks.install if configuration.enabled? && configuration.global_errors
       replacement
     end
@@ -44,6 +46,10 @@ module Hawk
 
     def set_context(context)
       @client&.set_context(context)
+    end
+
+    def add_breadcrumb(entry)
+      @client&.add_breadcrumb(entry)
     end
 
     def set_user(user)

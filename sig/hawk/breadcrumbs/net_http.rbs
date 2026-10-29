@@ -1,0 +1,16 @@
+module Hawk::Breadcrumbs
+  interface _HTTP
+    def start: [A] () ?{ (::Net::HTTP) -> A } -> (::Net::HTTP | A)
+    def address: () -> String
+    def request: (::Net::HTTPRequest, ?String?) ?{ (::Net::HTTPResponse) -> top } -> ::Net::HTTPResponse
+  end
+  module NetHTTP
+    def self.install: () -> void
+    def self.record: (Hawk::Client, ::Net::HTTPRequest, String, String?, Float) -> void
+    def self.connection_failed: (Hawk::Client, String, Float) -> void
+    module Methods : _HTTP
+      def start: [A] () ?{ (::Net::HTTP) -> A } -> (::Net::HTTP | A)
+      def request: (::Net::HTTPRequest, ?String?) ?{ (::Net::HTTPResponse) -> top } -> ::Net::HTTPResponse
+    end
+  end
+end

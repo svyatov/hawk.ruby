@@ -1,0 +1,17 @@
+module Hawk::Breadcrumbs
+  interface _Logger
+    def level: () -> Integer
+    def add: (Integer?, ?top, ?String?) ?{ () -> top } -> bool
+  end
+  module Logger
+    LEVELS: Array[Symbol]
+    def self.install: () -> void
+    def self.record: (Hawk::Client, Integer, top) -> void
+    def self.empty_message?: (top) -> bool
+    def self.message: (top, String?) -> top
+    module Methods : _Logger
+      def add: (Integer?, ?top, ?String?) ?{ () -> top } -> bool
+      alias log add
+    end
+  end
+end
