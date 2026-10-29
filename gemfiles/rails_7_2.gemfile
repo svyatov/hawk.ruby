@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 eval_gemfile "../Gemfile"
+gem "json", "< 3"
 gem "rails", "7.2.4"
 gem "solid_queue", "1.7.0"
 gem "sqlite3", "2.10.2"
-gem "json", "< 3"

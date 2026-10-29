@@ -11,7 +11,6 @@ load File.join(Gem.loaded_specs.fetch("solid_queue").full_gem_path,
 class RailsSolidQueueTest < RailsCaptureTest
   def test_real_claimed_jobs_report_failures_and_restore_context_between_jobs
     ActiveJob::Base.queue_adapter = :solid_queue
-    ActiveJob::Base.logger = Logger.new(File::NULL)
     Hawk.set_context(section: "queued")
     previous_failures = SolidQueue::FailedExecution.count
     HawkFailingJob.perform_later("unchanged")
