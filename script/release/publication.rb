@@ -69,11 +69,12 @@ module HawkRelease
     end
 
     def github_release
-      output, error, status = Open3.capture3("gh", "api", "repos/#{@repository}/releases/tags/#{@tag}")
-      return JSON.parse(output) if status.success?
-      return nil if error.include?("HTTP 404")
+      query = ".[] | select(.tag_name == #{JSON.generate(@tag)})"
+      output, error, status = Open3.capture3("gh", "api", "repos/#{@repository}/releases?per_page=100",
+                                             "--paginate", "--jq", query)
+      raise Failure, "GitHub release lookup failed: #{error}" unless status.success?
 
-      raise Failure, "GitHub release lookup failed: #{error}"
+      JSON.parse(output) unless output.strip.empty?
     end
 
     def create_release

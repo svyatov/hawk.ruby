@@ -53,6 +53,12 @@ class PublicationTest < HawkTest
     assert_raises(HawkRelease::Failure) { @publication.missing_assets(release) }
   end
 
+  def test_lookup_finds_an_existing_draft_by_tag
+    with_fake_github(release_data) do
+      assert_equal release_data, @publication.send(:github_release)
+    end
+  end
+
   private
 
   def response(code, body = {})
@@ -61,5 +67,30 @@ class PublicationTest < HawkTest
 
   def release_data
     { "tag_name" => "v#{Hawk::VERSION}", "target_commitish" => "a" * 40, "draft" => true, "assets" => [] }
+  end
+
+  def with_fake_github(release)
+    previous = ENV.to_h.slice("PATH", "HAWK_DRAFT_RESPONSE")
+    path = File.join(@directory, "gh")
+    File.write(path, fake_github)
+    File.chmod(0o755, path)
+    ENV["PATH"] = "#{@directory}:#{ENV.fetch('PATH')}"
+    ENV["HAWK_DRAFT_RESPONSE"] = JSON.generate(release)
+    yield
+  ensure
+    ENV["PATH"] = previous.fetch("PATH")
+    ENV["HAWK_DRAFT_RESPONSE"] = previous["HAWK_DRAFT_RESPONSE"]
+  end
+
+  def fake_github
+    <<~RUBY
+      #!#{RbConfig.ruby}
+      if ARGV.fetch(1).include?("/releases?")
+        puts ENV.fetch("HAWK_DRAFT_RESPONSE")
+      else
+        warn "gh: Not Found (HTTP 404)"
+        exit 1
+      end
+    RUBY
   end
 end
