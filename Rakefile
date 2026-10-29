@@ -16,12 +16,17 @@ Rake::TestTask.new(:test) do |task|
   if selection
     task.pattern = selection
   else
-    task.test_files = FileList["test/**/*_test.rb"].exclude(*INTEGRATION_BUNDLES.values.map(&:last))
+    task.test_files = FileList["test/**/*_test.rb"].exclude(*INTEGRATION_BUNDLES.values.map(&:last),
+                                                            "test/hawk/package_test.rb")
   end
   task.warning = true
 end
 
 namespace :test do
+  task :package do
+    sh "bundle", "exec", "rake", "test", "TEST=test/hawk/package_test.rb"
+  end
+
   task :quality do
     sh "bundle", "exec", "rake", "test", "TEST=test/quality/**/*_test.rb"
   end
