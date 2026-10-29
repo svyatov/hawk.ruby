@@ -2,6 +2,7 @@
 
 module Hawk
   # Filters detached JSON data before hooks or transmission can observe it.
+  # @api private
   class Filter
     SENSITIVE = /password|secret|passwd|api_?key|access_token|auth|credentials|mysql_pwd|stripetoken|card/i
 

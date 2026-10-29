@@ -2,6 +2,7 @@
 
 module Hawk
   # User callbacks must not change application control flow or stop delivery.
+  # @api private
   module Hook
     def self.call(&)
       Breadcrumbs.guard(:sdk, &)

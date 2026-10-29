@@ -6,6 +6,7 @@ require "time"
 
 module Hawk
   # Every send performs at most one POST, with a bounded response and deadline.
+  # @api private
   class Transport
     class ResponseTooLarge < StandardError; end
 

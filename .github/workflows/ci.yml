@@ -46,7 +46,7 @@ jobs:
         run: bundle install
         env:
           BUNDLE_FROZEN: "true"
-      - run: bundle exec rake check:lint check:types test:quality
+      - run: bundle exec rake check:lint check:types check:docs test:quality
       - run: bundle exec rake test:package
       - run: gem build hawk-ruby.gemspec
 

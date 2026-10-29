@@ -10,6 +10,7 @@ require_relative "../breadcrumbs/rails"
 
 module Hawk
   # Framework filtering is injected without changing the user's before_send hook.
+  # @api private
   module Rails
     def self.configure(configuration)
       return unless configuration.integration_enabled?(:rails)

@@ -6,6 +6,7 @@ require "delayed/plugin"
 
 module Hawk
   # Native lifecycle callbacks retain retries, payloads, and failure storage.
+  # @api private
   module DelayedJob
     def self.install
       return unless supported_version?

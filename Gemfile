@@ -12,3 +12,4 @@ gem "rbs", "~> 4.2", require: false
 gem "rubocop", "~> 1.92.2", require: false
 gem "simplecov", "~> 1.3.2", require: false
 gem "steep", "~> 2.1", require: false
+gem "yard", "~> 0.9.45", require: false

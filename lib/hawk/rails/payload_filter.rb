@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Hawk
+  # @api private
   module Rails
     # Rails deep filters and original-params blocks need each logical tree root.
     class PayloadFilter

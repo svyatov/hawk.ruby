@@ -4,13 +4,27 @@ require_relative "../hawk"
 
 module Hawk
   # Request scope covers application calls and the deferred response body.
+  # Rack middleware reporting application and deferred response-body errors.
+  #
+  # @example Add to config.ru
+  #   require "hawk/rack"
+  #   use Hawk::Rack
+  #   run app
   class Rack
+    # @param app [#call] downstream Rack application
+    # @param client [Client, nil] explicit client; nil uses Hawk.client for each request
+    # @param integration [Symbol] configuration switch controlling capture
     def initialize(app, client: nil, integration: :rack)
       @app = app
       @client = client
       @integration = integration
     end
 
+    # Runs the application in a fresh request scope when capture is enabled.
+    #
+    # @param env [Hash{String => Object}] Rack request environment
+    # @return [Array(Integer, Hash, #each)] Rack response with a monitored body
+    # @raise [Exception] application exceptions, after reporting when eligible
     def call(env)
       client = active_client
       return @app.call(env) unless client

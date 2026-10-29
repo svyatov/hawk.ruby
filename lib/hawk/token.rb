@@ -5,9 +5,11 @@ require "json"
 require "uri"
 
 module Hawk
+  # Raised when client configuration or its integration token is invalid.
   class ConfigurationError < ArgumentError; end
 
   # Resolves collector identity without exposing the integration secret.
+  # @api private
   class Token
     LABEL = /\A[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\z/i
 

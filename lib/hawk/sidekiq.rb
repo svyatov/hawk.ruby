@@ -5,6 +5,7 @@ require "sidekiq"
 
 module Hawk
   # Native middleware covers each backend attempt, including pre-execution errors.
+  # @api private
   module Sidekiq
     def self.install
       return unless ::Sidekiq::VERSION.match?(/\A[78]\./)

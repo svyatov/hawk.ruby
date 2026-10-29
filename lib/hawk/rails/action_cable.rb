@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Hawk
+  # @api private
   module Rails
     # These wrappers match Rails 7.2, 8.0, and 8.1 lifecycle methods.
     module ActionCable

@@ -2,6 +2,7 @@
 
 module Hawk
   # Only explicit, filtered JSON context crosses a queue boundary.
+  # @api private
   module JobContext
     def self.dump(client)
       return unless client.configuration.propagate_job_context

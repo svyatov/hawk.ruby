@@ -41,6 +41,11 @@ namespace :test do
 end
 
 namespace :check do
+  desc "Build documentation and check public API contracts"
+  task :docs do
+    sh "bundle", "exec", "ruby", "script/check_docs.rb"
+  end
+
   task :audit do
     sh "bundle", "exec", "ruby", "script/check_audit.rb"
   end
@@ -64,7 +69,12 @@ namespace :check do
     sh "bundle", "exec", "ruby", "script/check_types.rb"
   end
 
-  task fast: %i[lint types test]
+  task fast: %i[lint types docs test]
+end
+
+desc "Build the YARD API reference"
+task :docs do
+  sh "bundle", "exec", "yard", "doc"
 end
 
 task default: "check:fast"

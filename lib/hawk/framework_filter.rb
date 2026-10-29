@@ -2,6 +2,7 @@
 
 module Hawk
   # Previously filtered fields cross later boundaries without another transform.
+  # @api private
   module FrameworkFilter
     def self.call(configuration, payload, filtered_paths = [])
       filter = configuration.framework_filter

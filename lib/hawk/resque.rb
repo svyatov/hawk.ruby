@@ -6,6 +6,7 @@ require "resque/failure"
 
 module Hawk
   # Resque 2.7 delegates failures to its existing backend without payload changes.
+  # @api private
   module Resque
     def self.install
       return unless ::Resque::VERSION == "2.7.0"

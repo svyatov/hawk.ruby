@@ -2,6 +2,7 @@
 
 module Hawk
   # Breadcrumb buffers belong to scopes; instrumentation guards belong to fibers.
+  # @api private
   module Breadcrumbs
     def self.install(configuration)
       if configuration.breadcrumbs_logger || configuration.logger_error_level
