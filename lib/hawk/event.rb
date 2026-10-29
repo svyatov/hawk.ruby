@@ -26,7 +26,7 @@ module Hawk
 
       hook = @configuration.before_send
       if hook
-        case result = hook.call(payload)
+        case result = Hook.call { hook.call(payload) }
         when Hash then payload = JSONValue.object(result)
         else return nil
         end
@@ -45,7 +45,7 @@ module Hawk
       filter = @configuration.framework_filter
       return payload unless filter
 
-      case result = filter.call(payload)
+      case result = Hook.call { filter.call(payload) }
       when Hash then JSONValue.object(result)
       end
     end

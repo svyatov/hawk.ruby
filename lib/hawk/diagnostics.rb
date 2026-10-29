@@ -39,8 +39,10 @@ module Hawk
     end
 
     def emit
-      @callback&.call(snapshot)
-      @logger&.warn("Hawk delivery counters: #{JSON.generate(snapshot)}")
+      Hook.call do
+        @callback&.call(snapshot)
+        @logger&.warn("Hawk delivery counters: #{JSON.generate(snapshot)}")
+      end
     end
 
     def reset

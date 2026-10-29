@@ -68,15 +68,25 @@ module Hawk
     def self.filtered(configuration, raw)
       entry = JSONValue.object(raw).merge("timestamp" => (Time.now.to_f * 1000).to_i)
       entry = JSONValue.object(Filter.new(configuration).call(entry))
-      filter = configuration.framework_filter
-      entry = JSONValue.object(filter.call(entry)) if filter
+      entry = framework_filtered(configuration, entry)
+      return unless entry
+
       hook = configuration.before_breadcrumb
       return entry unless hook
 
-      case result = hook.call(entry)
+      case result = Hook.call { hook.call(entry) }
       when Hash then JSONValue.object(result)
       end
     end
-    private_class_method :filtered, :enabled?
+
+    def self.framework_filtered(configuration, entry)
+      filter = configuration.framework_filter
+      return entry unless filter
+
+      case result = Hook.call { filter.call(entry) }
+      when Hash then JSONValue.object(result)
+      end
+    end
+    private_class_method :filtered, :enabled?, :framework_filtered
   end
 end

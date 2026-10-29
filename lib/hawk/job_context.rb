@@ -10,7 +10,7 @@ module Hawk
       data = { "version" => 1, "context" => scope.context, "user" => scope.user }
       data = Filter.new(client.configuration).call(data)
       filter = client.configuration.framework_filter
-      load(filter ? filter.call(JSONValue.object(data)) : data)
+      load(filter ? Hook.call { filter.call(JSONValue.object(data)) } : data)
     rescue StandardError
       nil
     end

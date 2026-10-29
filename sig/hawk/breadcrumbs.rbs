@@ -7,6 +7,7 @@ module Hawk
     def self.add: (Client, raw_context) -> void
     private
     def self.filtered: (Configuration, raw_context) -> payload?
+    def self.framework_filtered: (Configuration, payload) -> payload?
     def self.enabled?: (Configuration, Symbol) -> bool
   end
 end

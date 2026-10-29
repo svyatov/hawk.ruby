@@ -1,0 +1,5 @@
+module Hawk
+  module Hook
+    def self.call: [A] () { () -> A } -> A?
+  end
+end
