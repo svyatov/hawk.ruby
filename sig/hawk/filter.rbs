@@ -1,0 +1,13 @@
+module Hawk
+  class Filter
+    SENSITIVE: Regexp
+    @patterns: Array[Regexp]
+    def initialize: (Configuration) -> void
+    def call: (json) -> json
+
+    private
+
+    def filter: (json) -> json
+    def sensitive?: (String) -> bool
+  end
+end

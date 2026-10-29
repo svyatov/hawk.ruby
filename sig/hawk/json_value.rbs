@@ -1,0 +1,17 @@
+module Hawk
+  class JSONValue
+    @seen: Hash[Object, bool]
+    @remaining: Integer
+    def self.normalize: (top) -> json
+    def self.object: (top) -> payload
+    def initialize: () -> void
+    def visit: (top, Integer) -> json
+
+    private
+
+    def scalar: (top) -> json
+    def text: (String) -> String
+    def container: (Array[top] | Hash[top, top], Integer) -> json
+    def mapping: (Hash[top, top], Integer) -> payload
+  end
+end

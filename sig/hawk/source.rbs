@@ -1,0 +1,18 @@
+module Hawk
+  class Source
+    @enabled: bool
+    @roots: Array[String]
+    def initialize: (Configuration) -> void
+    def frames: (Exception) -> Array[payload]
+
+    private
+
+    def location_frame: (Thread::Backtrace::Location) -> payload?
+    def realpath: (String) -> String?
+    def parse: (String) -> payload?
+    def frame: (String, Integer, String?) -> payload?
+    def snippets: (String, Integer) -> Array[payload]
+    def readable_path: (String) -> String?
+    def excerpt: (String, Integer) -> Array[payload]
+  end
+end

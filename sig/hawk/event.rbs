@@ -1,0 +1,21 @@
+module Hawk
+  class Event
+    @configuration: Configuration
+    @payload: payload
+    def initialize: (configuration: Configuration, id: String, ?exception: Exception?, ?message: String?, ?context: raw_context, ?user: raw_context?, ?breadcrumbs: Array[payload], ?addons: payload, ?level: Symbol) -> void
+    def encode: () -> String?
+
+    private
+
+    def title: (Exception) -> String
+    def metadata: (String, Symbol) -> payload
+    def attach_exception: (Exception) -> void
+    def causes: (Exception) -> Array[payload]
+    def valid_payload?: (payload) -> bool
+    def envelope: (payload) -> String
+    def bounded_envelope: (payload) -> String?
+    def trim: (payload, Symbol) -> void
+    def trim_sources: (payload) -> void
+    def keep_first: (payload, String, ?newest: bool) -> void
+  end
+end

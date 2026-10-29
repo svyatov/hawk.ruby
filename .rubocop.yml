@@ -16,3 +16,10 @@ Metrics/MethodLength:
 
 Metrics/ClassLength:
   Max: 150
+
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+
+Metrics/AbcSize:
+  Exclude:
+    - test/**/*
