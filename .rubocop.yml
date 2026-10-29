@@ -1,0 +1,14 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.3
+  SuggestExtensions: false
+  CacheRootDirectory: .superpowers/rubocop-cache
+  Exclude:
+    - vendor/**/*
+    - .superpowers/**/*
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Metrics/MethodLength:
+  CountAsOne: [array, hash, heredoc]

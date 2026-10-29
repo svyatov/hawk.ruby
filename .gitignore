@@ -1,0 +1,9 @@
+/.bundle/
+/vendor/
+/coverage/
+/.metrics/
+/.superpowers/
+/.worktrees/
+/pkg/
+/*.gem
+/.rbs_collection/
