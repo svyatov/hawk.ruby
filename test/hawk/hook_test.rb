@@ -49,4 +49,15 @@ class HookIsolationTest < HawkTest
     client&.close(timeout: 1.0)
     collector&.close
   end
+
+  def test_invalid_filter_configuration_drops_capture_without_interrupting_application_code
+    config = configuration
+    config.filter_parameters = nil
+    client, delivery = capture_client(config)
+    assert_nil client.capture_message("invalid filters")
+    assert_nil client.add_breadcrumb(message: "invalid filters")
+    assert_nil Hawk::JobContext.dump(client)
+    assert_equal 2, client.diagnostics.snapshot[:filtered]
+    assert_empty delivery.payloads
+  end
 end

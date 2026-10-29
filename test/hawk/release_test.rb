@@ -51,14 +51,17 @@ class ReleaseTest < HawkTest
 
   def with_git(program)
     original = ENV.fetch("PATH")
+    original_options = ENV.fetch("RUBYOPT", nil)
     Dir.mktmpdir("hawk-git") do |directory|
       path = File.join(directory, "git")
       File.write(path, "#!#{RbConfig.ruby}\n#{program}\n")
       File.chmod(0o700, path)
       ENV["PATH"] = "#{directory}:#{original}"
+      ENV["RUBYOPT"] = nil
       yield
     end
   ensure
     ENV["PATH"] = original
+    ENV["RUBYOPT"] = original_options
   end
 end
