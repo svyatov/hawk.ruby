@@ -15,13 +15,12 @@ jobs:
   verify:
     uses: ./.github/workflows/ci.yml
 
-  publish:
+  build:
     needs: verify
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    environment: release
     permissions:
-      contents: write
+      contents: read
       id-token: write
       attestations: write
       artifact-metadata: write
@@ -50,11 +49,31 @@ jobs:
             SHA256SUMS
           if-no-files-found: error
           retention-days: 14
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: release
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: release-artifacts
+          path: pkg/
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
+        with:
+          ruby-version: "4.0"
+      - name: Verify the archived bytes
+        working-directory: pkg
+        run: sha256sum --check SHA256SUMS
       - uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
-      - name: Publish to RubyGems
-        run: gem push hawk-ruby-*.gem
-      - name: Create the GitHub release
-        run: gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --notes-file CHANGELOG.md hawk-ruby-*.gem SHA256SUMS
+      - name: Publish or resume the release
+        run: ruby script/publish_release.rb
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}

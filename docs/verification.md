@@ -74,7 +74,7 @@ Coverage manifests contain a run identifier, commit, lane, and hashes of all run
 
 ## Remaining acceptance gaps
 
-GitHub-hosted Linux execution is unverified. This checkout has no Git remote, and this work has not been pushed or published.
+Remote Linux results are recorded in the [CI and release workflow runs](https://github.com/svyatov/hawk.ruby/actions). Each release requires the complete CI matrix before publication.
 
 Live Hawk ingestion and UI rendering are unverified. No dedicated live-test token was supplied or used.
 
