@@ -14,8 +14,6 @@ module Hawk
       @mutex.synchronize { @counts[name] = @counts.fetch(name, 0) + 1 }
       notify
       nil
-    rescue StandardError
-      nil
     end
 
     def snapshot
