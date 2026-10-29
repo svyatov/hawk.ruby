@@ -1,0 +1,41 @@
+name: Bug report
+description: Report behavior that differs from the documented contract.
+body:
+  - type: markdown
+    attributes:
+      value: For vulnerabilities, use the private contact in SECURITY.md. Remove tokens and personal data from every example.
+  - type: input
+    id: versions
+    attributes:
+      label: Gem and Ruby versions
+      description: Include the hawk-ruby version and the output of ruby --version.
+    validations:
+      required: true
+  - type: input
+    id: integration
+    attributes:
+      label: Integration and framework versions
+      description: Name the adapter and framework versions, or state that this uses only the core gem.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Give minimal Ruby code, relevant configuration, and commands that reproduce the problem.
+      render: ruby
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      description: Describe both results and link the relevant documentation when possible.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Sanitized diagnostics
+      description: Include relevant stack traces or delivery counters. Exclude credentials and private data.
+      render: text
