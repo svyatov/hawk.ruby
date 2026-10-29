@@ -1,4 +1,7 @@
 module Hawk
+  interface _RailsErrorReporter
+    def subscribe: (Hawk::Rails::ErrorSubscriber) -> void
+  end
   interface _RailsMiddlewareStack
     def insert_after: (Class, Class, ?integration: Symbol) -> void
   end

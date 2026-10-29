@@ -1,0 +1,40 @@
+module Hawk::Rails
+  interface _CableChannel
+    def perform_action: (Hash[String, top]) -> top
+    def subscribe_to_channel: () -> top
+    def unsubscribe_from_channel: () -> top
+  end
+
+  interface _CableConnection
+    def handle_open: () -> top
+    def handle_close: () -> top
+  end
+
+  interface _CableRescue
+    def rescue_with_handler: (Exception) -> Exception?
+  end
+
+  module ActionCable
+    self.@installed: bool?
+    def self.install: () -> void
+    def self.client: () -> Hawk::Client?
+    def self.run: [A] (Object, String) { () -> A } -> A
+    def self.report: (Exception, handled: bool) -> String?
+
+    module ChannelMethods : _CableChannel
+      def perform_action: (Hash[String, top]) -> top
+      def subscribe_to_channel: () -> top
+      def unsubscribe_from_channel: () -> top
+    end
+
+    module ConnectionMethods : _CableConnection
+      private
+      def handle_open: () -> top
+      def handle_close: () -> top
+    end
+
+    module RescueMethods : _CableRescue
+      def rescue_with_handler: (Exception) -> Exception?
+    end
+  end
+end

@@ -1,0 +1,9 @@
+module Hawk::Rails
+  class ErrorSubscriber
+    self.@installed: bool?
+    def self.install: () -> void
+    def report: (Exception, handled: bool, severity: Symbol, context: top, ?source: String?) -> void
+    private
+    def request_owned?: (Hawk::Client, Exception, String?) -> bool
+  end
+end

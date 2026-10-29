@@ -1,5 +1,7 @@
 module Rails
   def self.application: () -> ::Hawk::_RailsApplication?
+  def self.version: () -> String
+  def self.error: () -> ::Hawk::_RailsErrorReporter
 
   class Railtie
     def self.initializer: (String, ?after: Symbol) { (::Hawk::_RailsApplication) -> void } -> void
@@ -10,6 +12,7 @@ class Hawk::Railtie < ::Rails::Railtie
 end
 
 module ActiveSupport
+  def self.on_load: (Symbol) { (Class) -> void } -> void
   class ParameterFilter
     def initialize: (Array[top]) -> void
     def filter: (::Hawk::payload) -> top
