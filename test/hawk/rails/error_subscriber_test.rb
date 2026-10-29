@@ -33,4 +33,18 @@ class RailsErrorSubscriberTest < RailsCaptureTest
 
     assert_equal 1, @collector.events.size
   end
+
+  def test_explicit_in_request_reports_include_current_request_data_without_leaking_it
+    app = Hawk::Rack.new(lambda do |env|
+      env["action_dispatch.request.parameters"] = { "order_id" => "42", "pin" => "hidden" }
+      Rails.error.report(RuntimeError.new("inside request"), handled: true)
+      [200, {}, ["ok"]]
+    end, integration: :rails)
+    app.call(Rack::MockRequest.env_for("/reported"))
+    request = @collector.events.last.dig("payload", "addons", "request")
+    assert_equal "/reported", request.fetch("path")
+    assert_equal "[FILTERED]", request.dig("params", "pin")
+    Rails.error.report(RuntimeError.new("outside request"))
+    refute @collector.events.last.fetch("payload").fetch("addons").key?("request")
+  end
 end

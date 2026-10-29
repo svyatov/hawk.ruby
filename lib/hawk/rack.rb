@@ -29,9 +29,14 @@ module Hawk
     end
 
     def invoke(client, env)
-      @app.call(env)
-    ensure
-      client.current_scope.addons["request"] = metadata(env)
+      scope = client.current_scope
+      scope.request_metadata = -> { metadata(env) }
+      begin
+        @app.call(env)
+      ensure
+        scope.request_metadata = nil
+        scope.addons["request"] = metadata(env)
+      end
     end
 
     def metadata(env)

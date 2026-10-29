@@ -57,6 +57,20 @@ class RackIntegrationTest < HawkTest
     assert_equal "/boom", @delivery.payloads.last.dig("addons", "request", "path")
   end
 
+  def test_manual_reports_read_request_metadata_at_the_time_of_capture
+    app = Hawk::Rack.new(lambda do |env|
+      env["action_dispatch.request.parameters"] = { "order" => "42", "password" => "hidden" }
+      @client.with_scope { @client.capture_message("inside request") }
+      [200, {}, ["ok"]]
+    end, client: @client)
+    app.call(Rack::MockRequest.env_for("/manual", "REQUEST_METHOD" => "POST"))
+    request = @delivery.payloads.last.dig("addons", "request")
+
+    assert_equal "/manual", request&.fetch("path")
+    assert_equal "POST", request.fetch("method")
+    assert_equal({ "order" => "42", "password" => "[FILTERED]" }, request.fetch("params"))
+  end
+
   def test_streamed_failure_keeps_request_scope_after_middleware_returns
     error = RuntimeError.new("stream failed")
     original = FailingBody.new(error)

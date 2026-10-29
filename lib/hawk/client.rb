@@ -141,7 +141,7 @@ module Hawk
       identifier = SecureRandom.uuid
       encoded = Event.new(configuration: @configuration, id: identifier, exception: exception, message: message,
                           context: scope.context.merge(JSONValue.object(context)), user: event_user(user, scope),
-                          level: level, breadcrumbs: scope.breadcrumbs, addons: scope.addons.merge(addons)).encode
+                          level: level, breadcrumbs: scope.breadcrumbs, addons: scope.event_addons.merge(addons)).encode
       unless encoded
         @diagnostics.increment(:filtered)
         return nil

@@ -13,9 +13,11 @@ module Hawk
     attr_accessor breadcrumbs: Array[payload]
     attr_accessor ledger: Ledger
     attr_accessor boundary: bool
+    attr_accessor request_metadata: (^() -> payload)?
     def initialize: (?context: raw_context, ?user: raw_context?, ?anonymous_id: String) -> void
     def set_context: (raw_context) -> void
     def set_user: (raw_context?) -> void
+    def event_addons: () -> payload
     def copy: () -> Scope
   end
 end

@@ -22,7 +22,7 @@ module Hawk
     end
 
     attr_reader :context, :user, :anonymous_id
-    attr_accessor :addons, :breadcrumbs, :ledger, :boundary
+    attr_accessor :addons, :breadcrumbs, :ledger, :boundary, :request_metadata
 
     def initialize(context: {}, user: nil, anonymous_id: SecureRandom.uuid)
       @context = JSONValue.object(context)
@@ -32,6 +32,7 @@ module Hawk
       @breadcrumbs = []
       @ledger = Ledger.new
       @boundary = false
+      @request_metadata = nil
     end
 
     def set_context(context)
@@ -44,12 +45,18 @@ module Hawk
       nil
     end
 
+    def event_addons
+      reader = @request_metadata
+      reader ? @addons.merge("request" => reader.call) : @addons
+    end
+
     def copy
       duplicate = Scope.new(context: @context, user: @user, anonymous_id: @anonymous_id)
       duplicate.addons = JSONValue.object(@addons)
       duplicate.breadcrumbs = @breadcrumbs.map { |item| JSONValue.object(item) }
       duplicate.ledger = @ledger
       duplicate.boundary = @boundary
+      duplicate.request_metadata = @request_metadata
       duplicate
     end
   end
