@@ -25,6 +25,7 @@ module Hawk
     def init
       configuration = Configuration.new
       yield configuration
+      Rails.configure(configuration) if defined?(Hawk::Rails)
       replacement = Client.build(configuration)
       @client&.close
       @client = replacement
@@ -70,3 +71,5 @@ module Hawk
     end
   end
 end
+
+require_relative "hawk/rails/integration" if defined?(Rails::Railtie)

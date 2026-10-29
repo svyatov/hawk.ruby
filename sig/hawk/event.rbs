@@ -7,6 +7,7 @@ module Hawk
 
     private
 
+    def filtered_payload: () -> payload?
     def title: (Exception) -> String
     def metadata: (String, Symbol) -> payload
     def attach_exception: (Exception) -> void

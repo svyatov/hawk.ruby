@@ -4,8 +4,25 @@ require "rake/testtask"
 
 Rake::TestTask.new(:test) do |task|
   task.libs << "lib" << "test"
-  task.pattern = ENV.delete("TEST") || "test/**/*_test.rb"
+  selection = ENV.delete("TEST")
+  if selection
+    task.pattern = selection
+  else
+    task.test_files = FileList["test/**/*_test.rb"].exclude("test/hawk/rails/**/*", "test/hawk/rack_test.rb")
+  end
   task.warning = true
+end
+
+namespace :test do
+  task :rack do
+    sh({ "BUNDLE_GEMFILE" => File.expand_path("gemfiles/rack_3.gemfile") },
+       "bundle", "exec", "rake", "test", "TEST=test/hawk/rack_test.rb")
+  end
+
+  task :rails do
+    sh({ "BUNDLE_GEMFILE" => File.expand_path("gemfiles/rails_8_1.gemfile") },
+       "bundle", "exec", "rake", "test", "TEST=test/hawk/rails/**/*_test.rb")
+  end
 end
 
 namespace :check do

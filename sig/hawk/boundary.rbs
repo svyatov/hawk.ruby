@@ -1,5 +1,7 @@
 module Hawk
   module Boundary
     def self.run: [A] (Client, kind: Symbol, metadata: payload, ?inherit: bool) { () -> A } -> A
+    def self.resume: [A] (Client, Scope) { () -> A } -> A
+    private def self.protect: [A] (Client, Symbol) { () -> A } -> A
   end
 end

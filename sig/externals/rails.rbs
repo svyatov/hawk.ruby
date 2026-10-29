@@ -1,0 +1,22 @@
+module Rails
+  def self.application: () -> ::Hawk::_RailsApplication?
+
+  class Railtie
+    def self.initializer: (String, ?after: Symbol) { (::Hawk::_RailsApplication) -> void } -> void
+  end
+end
+
+class Hawk::Railtie < ::Rails::Railtie
+end
+
+module ActiveSupport
+  class ParameterFilter
+    def initialize: (Array[top]) -> void
+    def filter: (::Hawk::payload) -> top
+  end
+end
+
+module ActionDispatch
+  class DebugExceptions
+  end
+end

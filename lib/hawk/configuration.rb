@@ -7,7 +7,7 @@ module Hawk
                   :sample_rate, :delivery_mode, :queue_capacity, :source_roots, :send_source,
                   :connect_timeout, :read_timeout, :write_timeout, :flush_timeout, :limit_cooldown,
                   :context, :user, :ignored_exceptions, :filter_parameters, :integrations, :global_errors,
-                  :before_send, :before_breadcrumb, :diagnostic_callback, :propagate_job_context,
+                  :before_send, :before_breadcrumb, :framework_filter, :diagnostic_callback, :propagate_job_context,
                   :include_request_body, :include_job_arguments, :include_headers, :include_cookies,
                   :breadcrumbs_logger, :breadcrumbs_http, :breadcrumbs_rails, :logger_error_level
 
@@ -98,6 +98,7 @@ module Hawk
     def initialize_hooks
       @before_send = nil
       @before_breadcrumb = nil
+      @framework_filter = nil
       @diagnostic_callback = nil
       @propagate_job_context = true
       @integrations = {}
@@ -127,7 +128,7 @@ module Hawk
     end
 
     def validate_callbacks
-      [@before_send, @before_breadcrumb, @diagnostic_callback].each do |callback|
+      [@before_send, @before_breadcrumb, @framework_filter, @diagnostic_callback].each do |callback|
         raise ConfigurationError, "Hooks must be callable" unless callback.nil? || callback.respond_to?(:call)
       end
     end

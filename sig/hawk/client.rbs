@@ -14,6 +14,8 @@ module Hawk
     def self.build: (Configuration) -> Client
     def initialize: (Configuration, delivery: _Delivery, ?diagnostics: Diagnostics?) -> void
     def current_scope: () -> Scope
+    def enabled?: () -> bool
+    def using_scope: [A] (Scope) { () -> A } -> A
     def set_context: (raw_context) -> void
     def set_user: (raw_context?) -> void
     def with_scope: [A] () { (Scope) -> A } -> A
@@ -34,5 +36,6 @@ module Hawk
     def eligible?: (Exception?) -> bool
     def event_user: (raw_context?, Scope) -> payload
     def normal_termination?: (Exception) -> bool
+    def expected_request_error?: (Exception) -> bool
   end
 end

@@ -20,7 +20,9 @@ module Hawk
     end
 
     def encode
-      payload = JSONValue.object(Filter.new(@configuration).call(@payload))
+      payload = filtered_payload
+      return unless payload
+
       hook = @configuration.before_send
       if hook
         case result = hook.call(payload)
@@ -36,6 +38,16 @@ module Hawk
     end
 
     private
+
+    def filtered_payload
+      payload = JSONValue.object(Filter.new(@configuration).call(@payload))
+      filter = @configuration.framework_filter
+      return payload unless filter
+
+      case result = filter.call(payload)
+      when Hash then JSONValue.object(result)
+      end
+    end
 
     def title(exception)
       JSONValue.normalize(exception.message).to_s

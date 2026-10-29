@@ -1,0 +1,21 @@
+module Hawk
+  interface _RailsMiddlewareStack
+    def insert_after: (Class, Class, ?integration: Symbol) -> void
+  end
+
+  interface _RailsConfiguration
+    def filter_parameters: () -> Array[top]
+  end
+
+  interface _RailsApplication
+    def config: () -> _RailsConfiguration
+    def middleware: () -> _RailsMiddlewareStack
+  end
+
+  module Rails
+    def self.configure: (Configuration) -> void
+  end
+
+  class Railtie
+  end
+end

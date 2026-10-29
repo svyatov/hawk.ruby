@@ -28,6 +28,7 @@ module Hawk
     attr_accessor global_errors: bool
     attr_accessor before_send: payload_hook?
     attr_accessor before_breadcrumb: payload_hook?
+    attr_accessor framework_filter: payload_hook?
     attr_accessor diagnostic_callback: (^(Hash[Symbol, Integer]) -> void)?
     attr_accessor propagate_job_context: bool
     attr_accessor include_request_body: bool

@@ -1,0 +1,73 @@
+module Hawk
+  type rack_headers = Hash[String, String | Array[String]]
+  type rack_body = _RackEnumerableBody | _RackCallableBody
+  type rack_response = [Integer, rack_headers, rack_body]
+
+  interface _RackProtocol
+    def respond_to?: (Symbol, ?bool) -> bool
+  end
+
+  interface _RackEnumerableBody
+    include _RackProtocol
+    def each: () { (String) -> void } -> top
+  end
+
+  interface _RackCallableBody
+    include _RackProtocol
+    def call: (top) -> top
+  end
+
+  interface _RackFileBody
+    include _RackEnumerableBody
+    def to_path: () -> String
+  end
+
+  interface _RackClosableBody
+    def close: () -> top
+  end
+
+  interface _RackApp
+    def call: (Hash[String, top]) -> rack_response
+  end
+
+  class Rack
+    @app: _RackApp
+    @client: Client?
+    @integration: Symbol
+    def initialize: (_RackApp, ?client: Client?, ?integration: Symbol) -> void
+    def call: (Hash[String, top]) -> rack_response
+
+    private
+
+    def active_client: () -> Client?
+    def invoke: (Client, Hash[String, top]) -> rack_response
+    def metadata: (Hash[String, top]) -> payload
+    def optional_metadata: (payload, Hash[String, top]) -> payload
+
+    class Body
+      @body: _RackEnumerableBody
+      @client: Client
+      @scope: Scope
+      def self.wrap: (rack_body, client: Client, scope: Scope) -> rack_body
+      def initialize: (_RackEnumerableBody, client: Client, scope: Scope) -> void
+      def each: () -> Enumerator[String, top]
+              | () { (String) -> void } -> top
+      def close: () -> top
+    end
+
+    class FileBody < Body
+      @file_body: _RackFileBody
+      def initialize: (_RackFileBody, client: Client, scope: Scope) -> void
+      def to_path: () -> String
+    end
+
+    class CallableBody
+      @body: _RackCallableBody
+      @client: Client
+      @scope: Scope
+      def initialize: (_RackCallableBody, client: Client, scope: Scope) -> void
+      def call: (top) -> top
+      def close: () -> top
+    end
+  end
+end

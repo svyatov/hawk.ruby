@@ -13,6 +13,9 @@ Style/StringLiterals:
 Style/SpecialGlobalVars:
   EnforcedStyle: use_perl_names
 
+Layout/LeadingCommentSpace:
+  AllowRBSInlineAnnotation: true
+
 Metrics/MethodLength:
   Max: 15
   CountAsOne: [array, hash, heredoc]

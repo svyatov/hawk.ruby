@@ -25,6 +25,10 @@ module Hawk
       @store.current
     end
 
+    def enabled?
+      !@closed && @configuration.enabled?
+    end
+
     def set_context(context)
       current_scope.set_context(context)
     end
@@ -37,6 +41,14 @@ module Hawk
       previous = current_scope
       @store.replace(previous.copy)
       yield current_scope
+    ensure
+      @store.replace(previous) if previous
+    end
+
+    def using_scope(scope)
+      previous = current_scope
+      @store.replace(scope.copy)
+      yield
     ensure
       @store.replace(previous) if previous
     end
@@ -67,6 +79,7 @@ module Hawk
 
     def report(exception, mechanism:, context: {}, level: :error, handled: false)
       return if normal_termination?(exception)
+      return if mechanism == "request" && expected_request_error?(exception)
 
       case current_scope.ledger.accept(exception)
       when :duplicate then return nil
@@ -129,7 +142,7 @@ module Hawk
     end
 
     def eligible?(exception)
-      return false if @closed || !@configuration.enabled?
+      return false unless enabled?
       return false unless rand < @configuration.sample_rate
       return true unless exception
 
@@ -148,6 +161,12 @@ module Hawk
       when SystemExit, SignalException then true
       else false
       end
+    end
+
+    def expected_request_error?(exception)
+      expected = %w[ActionController::RoutingError AbstractController::ActionNotFound
+                    ActionController::UnknownAction ActiveRecord::RecordNotFound]
+      exception.class.ancestors.any? { |ancestor| expected.include?(ancestor.name) }
     end
   end
 end
