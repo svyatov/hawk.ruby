@@ -1,0 +1,4 @@
+# frozen_string_literal: true
+
+eval_gemfile "rails_8_1.gemfile"
+gem "resque", "2.7.0"

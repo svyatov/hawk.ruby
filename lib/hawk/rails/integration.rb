@@ -21,6 +21,7 @@ module Hawk
       ActionCable.install
       ActiveJob.install
       require_relative "../sidekiq" if defined?(::Sidekiq)
+      require_relative "../resque" if defined?(::Resque)
       nil
     end
   end

@@ -1,0 +1,7 @@
+module Resque
+  VERSION: String
+  class Job
+  end
+  module Failure
+  end
+end

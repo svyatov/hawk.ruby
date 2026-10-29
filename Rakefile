@@ -9,12 +9,17 @@ Rake::TestTask.new(:test) do |task|
     task.pattern = selection
   else
     task.test_files = FileList["test/**/*_test.rb"].exclude("test/hawk/rails/**/*", "test/hawk/rack_test.rb",
-                                                            "test/hawk/sidekiq_test.rb")
+                                                            "test/hawk/{sidekiq,resque}_test.rb")
   end
   task.warning = true
 end
 
 namespace :test do
+  task :resque do
+    sh({ "BUNDLE_GEMFILE" => File.expand_path("gemfiles/resque.gemfile"),
+         "BUNDLE_LOCKFILE" => File.expand_path("gemfiles/resque.gemfile.lock") },
+       "bundle", "exec", "rake", "test", "TEST=test/hawk/resque_test.rb")
+  end
   task :sidekiq do
     sh({ "BUNDLE_GEMFILE" => File.expand_path("gemfiles/sidekiq_8.gemfile"),
          "BUNDLE_LOCKFILE" => File.expand_path("gemfiles/sidekiq_8.gemfile.lock") },

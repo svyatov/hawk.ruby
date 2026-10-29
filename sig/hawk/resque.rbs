@@ -1,0 +1,25 @@
+module Hawk
+  interface _ResqueJob
+    def perform: () -> bool
+    def payload: () -> Hash[String, top]
+    def queue: () -> String
+  end
+
+  interface _ResqueFailure
+    def create: (?Hash[Symbol, top]) -> top
+  end
+
+  module Resque
+    def self.install: () -> void
+    def self.client: () -> Client?
+    def self.metadata: (Client, Hash[String, top], top) -> payload
+    def self.run: [A] (Hash[String, top], String) { () -> A } -> A
+    def self.report_failure: (Hash[Symbol, top]) -> void
+    module JobMethods : _ResqueJob
+      def perform: () -> bool
+    end
+    module FailureMethods : _ResqueFailure
+      def create: (?Hash[Symbol, top]) -> top
+    end
+  end
+end
