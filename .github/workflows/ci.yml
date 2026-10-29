@@ -40,7 +40,12 @@ jobs:
       - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+          bundler-cache: ${{ github.ref_type != 'tag' }}
+      - name: Install frozen release dependencies
+        if: github.ref_type == 'tag'
+        run: bundle install
+        env:
+          BUNDLE_FROZEN: "true"
       - run: bundle exec rake check:lint check:types test:quality
       - run: bundle exec rake test:package
       - run: gem build hawk-ruby.gemspec
@@ -64,7 +69,12 @@ jobs:
       - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+          bundler-cache: ${{ github.ref_type != 'tag' }}
+      - name: Install frozen release dependencies
+        if: github.ref_type == 'tag'
+        run: bundle install
+        env:
+          BUNDLE_FROZEN: "true"
       - run: sudo apt-get update
       - run: sudo apt-get install -y redis
       - run: bundle exec ruby script/run_lane.rb "${{ matrix.name }}"
@@ -87,7 +97,12 @@ jobs:
       - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
         with:
           ruby-version: "4.0"
-          bundler-cache: true
+          bundler-cache: ${{ github.ref_type != 'tag' }}
+      - name: Install frozen release dependencies
+        if: github.ref_type == 'tag'
+        run: bundle install
+        env:
+          BUNDLE_FROZEN: "true"
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: coverage-*
@@ -107,7 +122,12 @@ jobs:
       - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
         with:
           ruby-version: "4.0"
-          bundler-cache: true
+          bundler-cache: ${{ github.ref_type != 'tag' }}
+      - name: Install frozen release dependencies
+        if: github.ref_type == 'tag'
+        run: bundle install
+        env:
+          BUNDLE_FROZEN: "true"
       - name: Reject newly introduced vulnerabilities
         if: github.event_name == 'pull_request'
         run: bundle exec ruby script/check_audit.rb --base "$AUDIT_BASE"

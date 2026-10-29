@@ -12,7 +12,7 @@ Ruby error reporting for [Hawk](https://hawk.so), with optional Rails and backgr
 Run this command from your application's directory, which must contain a Gemfile:
 
 ```sh
-bundle add hawk-ruby --version "~> 0.1.0" --require hawk
+bundle add hawk-ruby --version "~> 0.1.1" --require hawk
 ```
 
 Copy the integration token from your Hawk project into `HAWK_TOKEN`. Save this example as `report.rb`:

@@ -11,6 +11,7 @@ class PublicationTest < HawkTest
     @gem = File.join(@directory, "hawk-ruby-#{Hawk::VERSION}.gem")
     File.write(@gem, "the original build")
     File.write(File.join(@directory, "SHA256SUMS"), "original checksums")
+    File.write(File.join(@directory, "sbom.cdx.json"), "original inventory")
     @publication = HawkRelease::Publication.new(@directory, tag: "v#{Hawk::VERSION}", commit: "a" * 40,
                                                             repository: "svyatov/hawk.ruby")
   end
@@ -36,7 +37,8 @@ class PublicationTest < HawkTest
     release = release_data
     release["assets"] << { "name" => File.basename(@gem), "digest" => "sha256:#{Digest::SHA256.file(@gem).hexdigest}" }
 
-    assert_equal [File.join(@directory, "SHA256SUMS")], @publication.missing_assets(release)
+    assert_equal [File.join(@directory, "sbom.cdx.json"), File.join(@directory, "SHA256SUMS")],
+                 @publication.missing_assets(release)
   end
 
   def test_a_different_tag_or_commit_cannot_be_resumed
@@ -57,6 +59,32 @@ class PublicationTest < HawkTest
     with_fake_github(release_data) do
       assert_equal release_data, @publication.send(:github_release)
     end
+  end
+
+  def test_gem_publication_requires_an_attestation_before_network_access
+    assert_raises(HawkRelease::Failure) { @publication.publish_gem(attestation: File.join(@directory, "missing")) }
+  end
+
+  def test_gem_push_uses_the_supplied_attestation_and_original_artifact
+    attestation = File.join(@directory, "bundle.json")
+    File.write(attestation, "signed bundle")
+    commands = []
+    @publication.define_singleton_method(:lookup) { Struct.new(:code).new("404") }
+    @publication.define_singleton_method(:run!) { |*command| commands << command }
+
+    @publication.publish_gem(attestation: attestation)
+
+    assert_equal [["gem", "push", @gem, "--attestation", attestation]], commands
+  end
+
+  def test_matching_registered_gem_is_not_pushed_again
+    attestation = File.join(@directory, "bundle.json")
+    File.write(attestation, "signed bundle")
+    registered = response("200", "sha" => Digest::SHA256.file(@gem).hexdigest)
+    @publication.define_singleton_method(:lookup) { registered }
+    @publication.define_singleton_method(:run!) { |*| raise "Unexpected command" }
+
+    @publication.publish_gem(attestation: attestation)
   end
 
   private

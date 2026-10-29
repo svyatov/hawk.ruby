@@ -16,6 +16,6 @@ class LoadingTest < Minitest::Test
     output, error, status = Open3.capture3("ruby", "-Ilib", "-e", script)
 
     assert status.success?, error
-    assert_equal "0.1.0\n", output
+    assert_equal "0.1.1\n", output
   end
 end
