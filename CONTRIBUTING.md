@@ -18,6 +18,14 @@ bundle install --gemfile gemfiles/rails_8_1.gemfile
 
 The complete coverage run needs all 12 integration bundles. Resque tests need a `redis-server` executable.
 
+To update dependencies in the root and all integration lockfiles, run:
+
+```sh
+bundle exec ruby script/update_locks.rb
+```
+
+Dependabot updates the root bundle. Its Bundler integration does not update the custom `gemfiles/*.gemfile` bundles; regenerate those locks before merging dependency changes.
+
 ## Check a change
 
 Run the fast checks from the repository root:
@@ -34,6 +42,8 @@ bundle exec rake check:crap
 bundle exec rake check:audit
 bundle exec rake test:package
 ```
+
+The local audit fails on any known vulnerability. Pull requests block on findings introduced since their base commit; main and weekly scans report all findings.
 
 [Verification](docs/verification.md) defines the acceptance requirements and explains these checks. CI runs the same checks across the supported Ruby versions and integration bundles.
 

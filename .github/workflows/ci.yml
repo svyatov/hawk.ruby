@@ -102,9 +102,17 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          fetch-depth: 0
           persist-credentials: false
       - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1
         with:
           ruby-version: "4.0"
           bundler-cache: true
-      - run: bundle exec rake check:audit
+      - name: Reject newly introduced vulnerabilities
+        if: github.event_name == 'pull_request'
+        run: bundle exec ruby script/check_audit.rb --base "$AUDIT_BASE"
+        env:
+          AUDIT_BASE: ${{ github.event.pull_request.base.sha }}
+      - name: Report repository vulnerabilities
+        if: github.event_name != 'pull_request'
+        run: bundle exec ruby script/check_audit.rb --report-only
