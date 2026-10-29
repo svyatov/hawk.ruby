@@ -1,12 +1,24 @@
 # frozen_string_literal: true
 
-# Use a workspace-local database so a failed refresh cannot look like a clean audit.
-root = File.expand_path("..", __dir__)
-database = File.join(root, ".superpowers/ruby-advisory-db")
-locks = ["Gemfile.lock", *Dir.glob("gemfiles/*.gemfile.lock", base: root)].sort
-locks.each do |lock|
-  puts "Auditing #{lock}"
-  command = ["bundle", "exec", "bundle-audit", "check", "--update", "--database", database,
-             "--gemfile-lock", lock]
-  abort "Audit failed: #{lock}" unless system(*command, chdir: root)
+require "json"
+require "optparse"
+require_relative "quality/audit"
+
+options = {}
+OptionParser.new do |parser|
+  parser.on("--base SHA") { |value| options[:base] = value }
+  parser.on("--report-only") { options[:report_only] = true }
+end.parse!
+abort "Unexpected arguments" unless ARGV.empty?
+abort "Choose --base or --report-only" if options[:base] && options[:report_only]
+
+begin
+  root = File.expand_path("..", __dir__)
+  audit = HawkQuality::Audit.new(root, HawkQuality::Audit.refresh_database(root))
+  findings = audit.findings
+  actionable = options[:base] ? findings - audit.baseline(options[:base]) : findings
+  puts JSON.pretty_generate(findings: findings, introduced: options[:base] ? actionable : nil)
+  abort "Dependency audit found #{actionable.length} blocking findings" if !options[:report_only] && actionable.any?
+rescue StandardError => e
+  abort "Dependency audit failed: #{e.message}"
 end
