@@ -1,0 +1,34 @@
+module Hawk::Rails
+  interface _ActiveJobExecutor
+    def execute: (Hash[String, top]) -> top
+  end
+
+  interface _ActiveJobInstance
+    def serialize: () -> Hash[String, top]
+    def deserialize: (Hash[String, top]) -> top
+    def perform_now: () -> top
+    def job_id: () -> String
+    def queue_name: () -> String
+    def executions: () -> Integer
+    def arguments: () -> Array[top]
+  end
+
+  module ActiveJob
+    self.@installed: bool?
+    def self.install: () -> void
+    def self.client: () -> Hawk::Client?
+    def self.run: [A] (Hash[String, top], top) { () -> A } -> A
+    def self.metadata: (Hawk::Client, Hash[String, top]) -> Hawk::payload
+
+    module ClassMethods : _ActiveJobExecutor
+      def execute: (Hash[String, top]) -> top
+    end
+
+    module InstanceMethods : _ActiveJobInstance
+      @hawk_context: Hawk::payload?
+      def serialize: () -> Hash[String, top]
+      def deserialize: (Hash[String, top]) -> top
+      def perform_now: () -> top
+    end
+  end
+end

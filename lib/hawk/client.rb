@@ -119,7 +119,7 @@ module Hawk
       scope = inherit ? previous.copy : Scope.new(context: @configuration.context, user: @configuration.user)
       scope.ledger = previous.boundary ? previous.ledger : Scope::Ledger.new
       scope.boundary = true
-      scope.addons = previous.addons.merge(metadata).merge("boundary" => kind.to_s)
+      scope.addons = (inherit ? previous.addons : scope.addons).merge(metadata).merge("boundary" => kind.to_s)
       scope
     end
 

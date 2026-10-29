@@ -2,7 +2,9 @@
 
 require "rails"
 require "action_controller/railtie"
-require "active_record"
+require "active_record/railtie"
+require "active_job/railtie"
+require "solid_queue"
 require "rack/mock"
 require "logger"
 require "tmpdir"
@@ -40,6 +42,9 @@ class HawkFixtureApp < Rails::Application
   config.logger = Logger.new(File::NULL)
 end
 
+FileUtils.mkdir_p(File.join(HawkFixtureApp.config.root, "config"))
+File.write(File.join(HawkFixtureApp.config.root, "config/database.yml"),
+           "development:\n  adapter: sqlite3\n  database: ':memory:'\n")
 HawkFixtureApp.initialize!
 HawkFixtureApp.routes.draw do
   get "/ok", to: "hawk_fixture#ok"

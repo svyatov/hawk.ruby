@@ -23,3 +23,9 @@ module ActionDispatch
   class DebugExceptions
   end
 end
+
+module ActiveJob
+  class Base
+    def self.after_discard: () { (Object, Exception) -> void } -> void
+  end
+end

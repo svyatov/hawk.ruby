@@ -1,0 +1,15 @@
+module Hawk
+  module JobContext
+    def self.dump: (Client) -> payload?
+    def self.load: (top) -> payload?
+    def self.apply: (Client, top) -> void
+    private
+    def self.valid?: (top, Integer, Hash[Symbol, Integer]) -> bool
+    def self.valid_header?: (payload) -> bool
+    def self.object?: (top, ?optional: bool) -> bool
+    def self.valid_scalar?: (top) -> bool
+    def self.valid_key?: (top) -> bool
+    def self.valid_object?: (Hash[top, top], Integer, Hash[Symbol, Integer]) -> bool
+    def self.valid_array?: (Array[top], Integer, Hash[Symbol, Integer]) -> bool
+  end
+end

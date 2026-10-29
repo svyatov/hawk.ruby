@@ -4,6 +4,7 @@ require_relative "../rack"
 require "active_support/parameter_filter"
 require_relative "error_subscriber"
 require_relative "action_cable"
+require_relative "active_job"
 
 module Hawk
   # Framework filtering is injected without changing the user's before_send hook.
@@ -18,6 +19,7 @@ module Hawk
       configuration.framework_filter = ->(payload) { filter.filter(payload) }
       ErrorSubscriber.install
       ActionCable.install
+      ActiveJob.install
       nil
     end
   end
