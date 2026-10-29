@@ -22,6 +22,7 @@ module Hawk
       ActiveJob.install
       require_relative "../sidekiq" if defined?(::Sidekiq)
       require_relative "../resque" if defined?(::Resque)
+      require_relative "../delayed_job" if defined?(::Delayed::Worker)
       nil
     end
   end

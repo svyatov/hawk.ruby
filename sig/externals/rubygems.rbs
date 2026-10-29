@@ -1,0 +1,4 @@
+# RubyGems and Bundler specifications expose version; RBS 4.2 omits it.
+class Gem::BasicSpecification
+  def version: () -> Gem::Version
+end

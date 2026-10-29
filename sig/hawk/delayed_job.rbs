@@ -1,0 +1,24 @@
+module Hawk
+  interface _DelayedJob
+    def id: () -> Integer?
+    def queue: () -> String?
+    def attempts: () -> Integer
+    def error: () -> Exception?
+  end
+
+  interface _DelayedLifecycle
+    def around: (Symbol) { (top, _DelayedJob) -> top } -> void
+    def after: (Symbol) { (top, _DelayedJob) -> top } -> void
+  end
+
+  module DelayedJob
+    def self.install: () -> void
+    def self.supported_version?: () -> bool
+    def self.client: () -> Client?
+    def self.run: [A] (_DelayedJob) { () -> A } -> A
+    def self.report: (_DelayedJob) -> void
+    AROUND: ^(top, _DelayedJob) ?{ () -> top } -> top
+    class Plugin
+    end
+  end
+end

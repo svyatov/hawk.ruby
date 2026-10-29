@@ -1,0 +1,5 @@
+# frozen_string_literal: true
+
+eval_gemfile "rails_7_2.gemfile"
+gem "delayed_job", "4.2.0"
+gem "delayed_job_active_record", "4.1.11"

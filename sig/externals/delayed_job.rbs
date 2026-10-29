@@ -1,0 +1,12 @@
+module Delayed
+  class Worker
+    def self.plugins: () -> Array[Class]
+    def self.lifecycle: () -> ::Hawk::_DelayedLifecycle
+  end
+  class Plugin
+    def self.callbacks: () { (::Hawk::_DelayedLifecycle) -> void } -> void
+  end
+end
+
+class Hawk::DelayedJob::Plugin < ::Delayed::Plugin
+end

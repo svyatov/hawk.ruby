@@ -2,41 +2,34 @@
 
 require "rake/testtask"
 
+INTEGRATION_BUNDLES = {
+  delayed_job: ["delayed_job", "test/hawk/delayed_job_test.rb"],
+  resque: ["resque", "test/hawk/resque_test.rb"],
+  sidekiq: ["sidekiq_8", "test/hawk/sidekiq_test.rb"],
+  rack: ["rack_3", "test/hawk/rack_test.rb"],
+  rails: ["rails_8_1", "test/hawk/rails/**/*_test.rb"]
+}.freeze
+
 Rake::TestTask.new(:test) do |task|
   task.libs << "lib" << "test"
   selection = ENV.delete("TEST")
   if selection
     task.pattern = selection
   else
-    task.test_files = FileList["test/**/*_test.rb"].exclude("test/hawk/rails/**/*", "test/hawk/rack_test.rb",
-                                                            "test/hawk/{sidekiq,resque}_test.rb")
+    task.test_files = FileList["test/**/*_test.rb"].exclude(*INTEGRATION_BUNDLES.values.map(&:last))
   end
   task.warning = true
 end
 
 namespace :test do
-  task :resque do
-    sh({ "BUNDLE_GEMFILE" => File.expand_path("gemfiles/resque.gemfile"),
-         "BUNDLE_LOCKFILE" => File.expand_path("gemfiles/resque.gemfile.lock") },
-       "bundle", "exec", "rake", "test", "TEST=test/hawk/resque_test.rb")
-  end
-  task :sidekiq do
-    sh({ "BUNDLE_GEMFILE" => File.expand_path("gemfiles/sidekiq_8.gemfile"),
-         "BUNDLE_LOCKFILE" => File.expand_path("gemfiles/sidekiq_8.gemfile.lock") },
-       "bundle", "exec", "rake", "test", "TEST=test/hawk/sidekiq_test.rb")
+  INTEGRATION_BUNDLES.each do |name, (bundle, pattern)|
+    task name do
+      gemfile = File.expand_path("gemfiles/#{bundle}.gemfile")
+      sh({ "BUNDLE_GEMFILE" => gemfile, "BUNDLE_LOCKFILE" => "#{gemfile}.lock" },
+         "bundle", "exec", "rake", "test", "TEST=#{pattern}")
+    end
   end
   task active_job: :rails
-  task :rack do
-    sh({ "BUNDLE_GEMFILE" => File.expand_path("gemfiles/rack_3.gemfile"),
-         "BUNDLE_LOCKFILE" => File.expand_path("gemfiles/rack_3.gemfile.lock") },
-       "bundle", "exec", "rake", "test", "TEST=test/hawk/rack_test.rb")
-  end
-
-  task :rails do
-    sh({ "BUNDLE_GEMFILE" => File.expand_path("gemfiles/rails_8_1.gemfile"),
-         "BUNDLE_LOCKFILE" => File.expand_path("gemfiles/rails_8_1.gemfile.lock") },
-       "bundle", "exec", "rake", "test", "TEST=test/hawk/rails/**/*_test.rb")
-  end
 end
 
 namespace :check do
