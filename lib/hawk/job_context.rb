@@ -9,8 +9,7 @@ module Hawk
       scope = client.current_scope
       data = { "version" => 1, "context" => scope.context, "user" => scope.user }
       data = Filter.new(client.configuration).call(data)
-      filter = client.configuration.framework_filter
-      load(filter ? Hook.call { filter.call(JSONValue.object(data)) } : data)
+      load(FrameworkFilter.call(client.configuration, JSONValue.object(data), scope.filtered_paths))
     rescue StandardError
       nil
     end
@@ -32,8 +31,8 @@ module Hawk
       data = load(raw)
       return unless data
 
-      client.set_context(JSONValue.object(data["context"]))
-      client.set_user(JSONValue.object(data["user"])) if data["user"]
+      user = JSONValue.object(data["user"]) if data["user"]
+      client.current_scope.restore_filtered(JSONValue.object(data["context"]), user)
     end
 
     def self.valid_header?(data)

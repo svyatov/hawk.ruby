@@ -31,7 +31,7 @@ module Hawk
       acquired = @mutex.synchronize { !@notifying && (@notifying = true) }
       return unless acquired
 
-      Breadcrumbs.guard(:sdk) { emit }
+      emit
     ensure
       @mutex.synchronize { @notifying = false } if acquired
     end

@@ -45,7 +45,7 @@ module Hawk
       case category
       when :logger then config.breadcrumbs_logger || !config.logger_error_level.nil?
       when :http then config.breadcrumbs_http
-      when :rails then config.breadcrumbs_rails
+      when :rails then config.breadcrumbs_rails && config.integration_enabled?(:rails)
       else false
       end
     end

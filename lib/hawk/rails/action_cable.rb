@@ -19,8 +19,7 @@ module Hawk
       end
 
       def self.client
-        client = Hawk.client
-        client if client&.enabled? && client.configuration.integration_enabled?(:action_cable)
+        Rails.integration_client(:action_cable)
       end
 
       def self.run(owner, operation, &)

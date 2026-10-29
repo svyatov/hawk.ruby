@@ -18,8 +18,7 @@ module Hawk
       end
 
       def self.client
-        client = Hawk.client
-        client if client&.enabled? && client.configuration.integration_enabled?(:active_job)
+        Rails.integration_client(:active_job)
       end
 
       def self.run(data, context, &block)

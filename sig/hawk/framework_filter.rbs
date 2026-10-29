@@ -1,0 +1,5 @@
+module Hawk
+  module FrameworkFilter
+    def self.call: (Configuration, payload, ?Array[Array[String]]) -> payload?
+  end
+end

@@ -56,12 +56,14 @@ module Hawk
       return result unless client
 
       config = client.configuration
-      if config.include_headers
-        result["headers"] = JSONValue.object(env.select { |key, _value| key.start_with?("HTTP_") })
-      end
+      result["headers"] = headers(env) if config.include_headers
       result["cookies"] = JSONValue.normalize(env["HTTP_COOKIE"]) if config.include_cookies
       result["body"] = JSONValue.normalize(env["RAW_POST_DATA"]) if config.include_request_body
       result
+    end
+
+    def headers(env)
+      JSONValue.object(env.select { |key, _value| key.start_with?("HTTP_") && key != "HTTP_COOKIE" })
     end
   end
 end

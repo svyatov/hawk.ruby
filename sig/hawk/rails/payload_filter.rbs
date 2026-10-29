@@ -1,0 +1,16 @@
+module Hawk
+  interface _ParameterFilter
+    def filter: (payload) -> top
+  end
+  module Rails
+    class PayloadFilter
+      PATHS: Array[Array[String]]
+      @filter: _ParameterFilter
+      def initialize: (_ParameterFilter) -> void
+      def call: (payload) -> payload
+      private
+      def filter: (payload) -> payload
+      def filter_tree: (String, json) -> json
+    end
+  end
+end

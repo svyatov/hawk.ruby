@@ -1,0 +1,11 @@
+module Hawk
+  class FilteredFields
+    @entries: Array[[Array[String], String, json]]
+    def initialize: (payload, Array[Array[String]], ?containers_only: bool) -> void
+    def restore: (payload) { (String, json) -> json } -> payload
+    private
+    def extract: (payload, Array[String], bool) -> void
+    def container?: (json) -> bool
+    def parent_at: (payload, Array[String]) -> payload?
+  end
+end

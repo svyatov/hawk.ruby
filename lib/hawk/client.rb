@@ -72,7 +72,7 @@ module Hawk
 
     def capture_exception(exception, context: {}, user: nil, level: :error)
       identifier = dispatch(exception: exception, context: context, user: user, level: level)
-      current_scope.ledger.accept(exception) if identifier
+      current_scope.ledger.accept(exception, evict: !current_scope.boundary) if identifier
       identifier
     end
 
@@ -92,7 +92,7 @@ module Hawk
       return if normal_termination?(exception)
       return if mechanism == "request" && expected_request_error?(exception)
 
-      case current_scope.ledger.accept(exception)
+      case current_scope.ledger.accept(exception, evict: !current_scope.boundary)
       when :duplicate then return nil
       when :overflow
         @diagnostics.increment(:duplicate_overflow)
@@ -137,11 +137,9 @@ module Hawk
     def dispatch(exception: nil, message: nil, context: {}, user: nil, level: :error, addons: {})
       return unless eligible?(exception)
 
-      scope = current_scope
       identifier = SecureRandom.uuid
       encoded = Event.new(configuration: @configuration, id: identifier, exception: exception, message: message,
-                          context: scope.context.merge(JSONValue.object(context)), user: event_user(user, scope),
-                          level: level, breadcrumbs: scope.breadcrumbs, addons: scope.event_addons.merge(addons)).encode
+                          level: level, **current_scope.event_data(context, user, @configuration.user, addons)).encode
       unless encoded
         @diagnostics.increment(:filtered)
         return nil
@@ -159,12 +157,6 @@ module Hawk
 
       names = exception.class.ancestors.filter_map(&:name)
       @configuration.ignored_exceptions.none? { |name| names.include?(name) }
-    end
-
-    def event_user(user, scope)
-      value = JSONValue.object(user || scope.user || @configuration.user || {})
-      value["id"] ||= scope.anonymous_id
-      value
     end
 
     def normal_termination?(exception)

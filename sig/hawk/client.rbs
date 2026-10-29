@@ -35,7 +35,6 @@ module Hawk
     def boundary_scope: (Scope, Symbol, payload, bool) -> Scope
     def dispatch: (?exception: Exception?, ?message: String?, ?context: raw_context, ?user: raw_context?, ?level: Symbol, ?addons: payload) -> String?
     def eligible?: (Exception?) -> bool
-    def event_user: (raw_context?, Scope) -> payload
     def normal_termination?: (Exception) -> bool
     def expected_request_error?: (Exception) -> bool
   end

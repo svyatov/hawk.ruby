@@ -78,6 +78,8 @@ Events receive an anonymous user identifier when no explicit identifier exists. 
 
 Manual captures can repeat. Automatic captures suppress repeated propagation of the same exception object within one execution.
 
+Owned request and job boundaries retain at most 256 exception identities and reject additional automatic reports within that boundary. Outside those boundaries, the ledger evicts its oldest identity so long-running reporting continues. An evicted exception can be reported again.
+
 ## Privacy and limits
 
 | Setting | Default |
@@ -92,6 +94,8 @@ Manual captures can repeat. Automatic captures suppress repeated propagation of 
 Built-in filtering covers sensitive key names, including passwords, secrets, authorization, API keys, and payment cards. Add application-specific names to `filter_parameters`.
 
 Rails also applies `config.filter_parameters`. Opted-in raw bodies and cookie strings need explicit filtering or exclusion when their contents contain secrets.
+
+Cookie headers are excluded from generic header capture. Only `include_cookies` enables the dedicated cookie field. Rails filters receive each original parameter or context tree once; stored breadcrumbs and propagated job values retain their filtered state.
 
 The SDK uses parsed parameters already present in the request environment. It does not read or rewind the request input stream.
 
@@ -121,6 +125,8 @@ end
 
 Hook errors or invalid results drop only the affected event or breadcrumb. Hooks can add data, so their output needs the same privacy review as application logging.
 
+Automatic Logger, HTTP, and Rails breadcrumb instrumentation is suppressed while SDK hooks run. Application logging and message-block evaluation continue normally.
+
 Logger and Net::HTTP breadcrumbs require opt-in. Logger messages use normal Logger evaluation. HTTP breadcrumbs omit queries, credentials, headers, and bodies.
 
 Rails notifications record operation names and timing. SQL text, bindings, mail content, and job arguments are excluded by default.
@@ -130,6 +136,8 @@ Rails notifications record operation names and timing. SQL text, bindings, mail 
 ## Integration controls and diagnostics
 
 Set entries in `integrations` to false to disable `:rails`, `:rack`, `:rake`, `:action_cable`, `:active_job`, `:sidekiq`, `:resque`, or `:delayed_job`.
+
+The `:rails` switch also controls Rails error reports, Cable, Active Job, and Rails breadcrumbs after reinitialization. Direct backend adapters retain their own switches.
 
 `diagnostic_callback` receives counter snapshots. `diagnostic_logger` receives sanitized warning messages with the same counters.
 

@@ -84,6 +84,8 @@ The serialized job receives a separate `hawk` field containing versioned explici
 
 Metadata is filtered, JSON-only, and limited to 8 KiB. Malformed, oversized, or unknown-version metadata is ignored.
 
+Version 1 metadata is filtered by its producer. Consumers preserve that state, including when a job enqueues another job. Use the same custom Rails privacy filters on producers and consumers; a consumer-only filter change does not transform previously queued values. New explicit scope values and event overrides receive filtering normally.
+
 Automatic request metadata, breadcrumbs, and anonymous users are not propagated. Set `propagate_job_context = false` to disable propagation.
 
 Solid Queue uses this same Active Job contract. Tests exercise its database-backed claim and execution paths.

@@ -3,7 +3,7 @@ module Hawk
     class Ledger
       @errors: Hash[Exception, bool]
       def initialize: () -> void
-      def accept: (Exception) -> (:duplicate | :overflow | :accepted)
+      def accept: (Exception, ?evict: bool) -> (:duplicate | :overflow | :accepted)
     end
 
     attr_reader context: payload
@@ -15,9 +15,17 @@ module Hawk
     attr_accessor boundary: bool
     attr_accessor request_metadata: (^() -> payload)?
     def initialize: (?context: raw_context, ?user: raw_context?, ?anonymous_id: String) -> void
+    @filtered_context_keys: Hash[String, bool]
+    @filtered_user: bool
     def set_context: (raw_context) -> void
     def set_user: (raw_context?) -> void
+    def restore_filtered: (raw_context, raw_context?) -> void
+    def filtered_paths: (?except_context: Array[String], ?user_override: bool) -> Array[Array[String]]
     def event_addons: () -> payload
+    def event_data: (raw_context, raw_context?, raw_context?, payload) -> { context: payload, user: payload, breadcrumbs: Array[payload], addons: payload, filtered_paths: Array[Array[String]] }
     def copy: () -> Scope
+    private
+    def update_context: (raw_context, bool) -> void
+    def update_user: (raw_context?, bool) -> void
   end
 end

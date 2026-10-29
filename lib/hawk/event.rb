@@ -4,8 +4,9 @@ module Hawk
   # Builds the native protocol payload; hooks never receive integration tokens.
   class Event
     def initialize(configuration:, id:, exception: nil, message: nil, context: {}, user: nil,
-                   breadcrumbs: [], addons: {}, level: :error)
+                   breadcrumbs: [], addons: {}, level: :error, filtered_paths: [])
       @configuration = configuration
+      @filtered_paths = filtered_paths
       @addons = metadata(id, level).merge(JSONValue.object(addons))
       @payload = {
         "title" => exception ? title(exception) : (message || "Message"),
@@ -13,10 +14,10 @@ module Hawk
         "catcherVersion" => VERSION,
         "context" => JSONValue.normalize(context),
         "breadcrumbs" => JSONValue.normalize(breadcrumbs),
+        "user" => JSONValue.normalize(user),
+        "release" => configuration.release,
         "addons" => @addons
-      }
-      @payload["user"] = JSONValue.normalize(user) if user
-      @payload["release"] = configuration.release if configuration.release
+      }.compact
       attach_exception(exception) if exception
     end
 
@@ -42,12 +43,7 @@ module Hawk
 
     def filtered_payload
       payload = JSONValue.object(Filter.new(@configuration).call(@payload))
-      filter = @configuration.framework_filter
-      return payload unless filter
-
-      case result = Hook.call { filter.call(payload) }
-      when Hash then JSONValue.object(result)
-      end
+      FrameworkFilter.call(@configuration, payload, @filtered_paths)
     end
 
     def title(exception)

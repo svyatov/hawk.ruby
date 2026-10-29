@@ -3,7 +3,8 @@ module Hawk
     @addons: payload
     @configuration: Configuration
     @payload: payload
-    def initialize: (configuration: Configuration, id: String, ?exception: Exception?, ?message: String?, ?context: raw_context, ?user: raw_context?, ?breadcrumbs: Array[payload], ?addons: payload, ?level: Symbol) -> void
+    @filtered_paths: Array[Array[String]]
+    def initialize: (configuration: Configuration, id: String, ?exception: Exception?, ?message: String?, ?context: raw_context, ?user: raw_context?, ?breadcrumbs: Array[payload], ?addons: payload, ?level: Symbol, ?filtered_paths: Array[Array[String]]) -> void
     def encode: () -> String?
 
     private

@@ -12,8 +12,8 @@ module Hawk
       end
 
       def report(error, handled:, severity:, context:, source: nil)
-        client = Hawk.client
-        return unless client&.enabled? && client.configuration.integration_enabled?(:rails_error)
+        client = Rails.integration_client(:rails_error)
+        return unless client
         return if request_owned?(client, error, source)
 
         client.with_scope do |scope|

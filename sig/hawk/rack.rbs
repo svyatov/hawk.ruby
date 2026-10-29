@@ -43,6 +43,7 @@ module Hawk
     def invoke: (Client, Hash[String, top]) -> rack_response
     def metadata: (Hash[String, top]) -> payload
     def optional_metadata: (payload, Hash[String, top]) -> payload
+    def headers: (Hash[String, top]) -> payload
 
     class Body
       @body: _RackEnumerableBody

@@ -18,6 +18,7 @@ module Hawk
   module Rails
     def self.configure: (Configuration) -> void
     def self.activate_integrations: (Configuration) -> void
+    def self.integration_client: (Symbol) -> Client?
   end
 
   class Railtie

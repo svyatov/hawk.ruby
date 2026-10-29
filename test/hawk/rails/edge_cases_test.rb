@@ -70,6 +70,31 @@ class RailsEdgeCasesTest < RailsCaptureTest
     assert_empty @collector.events
   end
 
+  def test_child_switches_disable_hooks_while_the_master_rails_integration_stays_enabled
+    %i[rails_error action_cable active_job].each { |key| Hawk.client.configuration.integrations[key] = false }
+    run_framework_operations
+
+    assert_empty @collector.events
+    Hawk.capture_message("manual", context: { pin: "private" })
+    assert_equal "[FILTERED]", @collector.events.last.dig("payload", "context", "pin")
+  end
+
+  def test_the_master_rails_switch_controls_previously_installed_hooks_after_reinitialization
+    [false, true].each do |enabled|
+      reinitialize_rails(enabled)
+      before = @collector.events.size
+      run_framework_operations(expect_context: enabled)
+      ActiveSupport::Notifications.instrument("deliver.action_mailer", mail: "fixture")
+      if enabled
+        assert_equal before + 4, @collector.events.size
+        refute_empty Hawk.client.current_scope.breadcrumbs
+      else
+        assert_empty Hawk.client.current_scope.breadcrumbs
+        assert_equal before, @collector.events.size
+      end
+    end
+  end
+
   def test_cable_worker_handler_does_not_repeat_an_escaping_error
     ActionCable.server.config.logger = Logger.new(File::NULL)
     connection = HawkEdgeConnection.new(ActionCable.server, Rack::MockRequest.env_for("/cable"))
@@ -116,9 +141,19 @@ class RailsEdgeCasesTest < RailsCaptureTest
 
   private
 
-  def run_framework_operations
+  def reinitialize_rails(enabled)
+    Hawk.init do |config|
+      config.token = integration_token
+      config.endpoint = @collector.url
+      config.delivery_mode = :sync
+      config.global_errors = false
+      config.integrations[:rails] = enabled
+    end
+  end
+
+  def run_framework_operations(expect_context: false)
     Rails.error.report(RuntimeError.new("explicit report"))
-    refute HawkQuietJob.new.serialize.key?("hawk")
+    assert_equal expect_context, HawkQuietJob.new.serialize.key?("hawk")
     HawkQuietJob.perform_now
     ActiveJob::Base.execute(HawkQuietJob.new.serialize)
     channel = HawkQuietChannel.new(ActionCable::Channel::ConnectionStub.new, "fixture")

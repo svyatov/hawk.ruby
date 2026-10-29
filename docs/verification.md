@@ -13,7 +13,7 @@ Redis fixtures start isolated servers. Database fixtures use temporary SQLite fi
 | Gate | Observed result |
 | --- | --- |
 | RuboCop 1.92.2 | No offenses |
-| Steep 2.1.0 and Ruby Signature (RBS) 4.2.0 | 34 runtime files, zero untyped calls, valid signatures |
+| Steep 2.1.0 and Ruby Signature (RBS) 4.2.0 | 37 runtime files, zero untyped calls, valid signatures |
 | SimpleCov 1.3.2 | 100% executable lines and branches |
 | crap4ruby 0.2.1 | All method scores measured, maximum CRAP 7, limit 10 |
 | bundler-audit 0.9.3 | 13 lockfiles, no reported vulnerabilities after database refresh |
@@ -45,6 +45,8 @@ The matrix is defined in `script/test_lanes.rb`. GitHub Actions consumes that de
 Independent runtime QA passed 44 public-interface scenarios on Ruby 4.0.9, including Rails reports and Active Job propagation.
 
 The pass reproduced two defects and verified their fixes: request metadata timing and nonstandard hook exceptions. Regression tests cover both paths.
+
+Final-review regressions and focused public-interface QA also verify cookie controls, Rails parameter roots, bounded duplicate retention, hook logging, integration reinitialization, and filtered job propagation.
 
 `bundle exec rake test:package` builds the gem and installs it into a temporary gem home with only runtime dependencies.
 
