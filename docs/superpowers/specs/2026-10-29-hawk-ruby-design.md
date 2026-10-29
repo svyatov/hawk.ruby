@@ -1,6 +1,6 @@
 # Hawk Ruby catcher design
 
-Status: proposed, pending user approval.
+Status: approved by the user on 2026-10-29.
 
 ## Intent and agreed scope
 
@@ -54,7 +54,7 @@ Source inspection establishes compatibility expectations; a live end-to-end test
 
 ## Proposed implementation decisions
 
-These are author proposals, subject to approval with this document.
+These author proposals were accepted with approval of this document.
 
 | Decision | Proposal |
 | --- | --- |
