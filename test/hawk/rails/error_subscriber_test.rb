@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require "support/rails_capture_test"
+require "support/rails_capture"
 
 class RailsErrorSubscriberTest < RailsCaptureTest
   def test_explicit_rails_report_bypasses_request_only_exclusions

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require "support/rails_capture_test"
+require "support/rails_capture"
 require "action_cable"
 require "action_cable/channel/test_case"
 
