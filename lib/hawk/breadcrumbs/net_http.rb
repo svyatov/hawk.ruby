@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Hawk
+  # @api private
   module Breadcrumbs
     # Guard Net::HTTP's internal recursion while retaining the response block API.
     module NetHTTP

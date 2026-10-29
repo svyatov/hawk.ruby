@@ -2,6 +2,7 @@
 
 module Hawk
   # Queue capacity never blocks capture; flush and close have explicit deadlines.
+  # @api private
   class Delivery
     def initialize(configuration, transport:, diagnostics:)
       @configuration = configuration

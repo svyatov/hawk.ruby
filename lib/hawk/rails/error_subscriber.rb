@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Hawk
+  # @api private
   module Rails
     # Rails owns subscriber lifetime; each report resolves the current client.
     class ErrorSubscriber

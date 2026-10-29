@@ -2,6 +2,7 @@
 
 module Hawk
   # Adapters share report ownership while retaining their own execution scopes.
+  # @api private
   module Boundary
     def self.run(client, kind:, metadata:, inherit: false, &block)
       client.with_boundary(kind: kind, metadata: metadata, inherit: inherit) do

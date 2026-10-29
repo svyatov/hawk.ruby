@@ -2,6 +2,7 @@
 
 module Hawk
   # Empty placeholders retain parent/key masking while excluding saved contents.
+  # @api private
   class FilteredFields
     def initialize(payload, paths, containers_only: false)
       @entries = []

@@ -65,6 +65,8 @@ Rails also detects loaded job backends during initialization. The adapters prese
 
 See [integrations](docs/integrations.md) for placement, supported versions, propagation limits, and exclusions.
 
+See [configuration](docs/configuration.md) for settings and [API documentation](CONTRIBUTING.md#api-documentation) to build the YARD reference.
+
 ## Delivery and privacy
 
 The default client uses one background thread and a queue of 100 events. Capture never waits for queue space. Each delivery makes one bounded HTTP attempt.
@@ -79,6 +81,7 @@ Source snippets are enabled within configured source roots. Set `send_source = f
 
 ```sh
 bundle exec rake check:fast
+bundle exec rake check:docs
 bundle exec rake check:coverage
 bundle exec rake check:crap
 bundle exec rake check:audit

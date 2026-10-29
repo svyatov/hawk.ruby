@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Hawk
+  # @api private
   module Rails
     # Active Job owns retry decisions; Hawk observes escaping and terminal errors.
     module ActiveJob

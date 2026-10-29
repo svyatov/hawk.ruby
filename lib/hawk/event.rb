@@ -2,6 +2,7 @@
 
 module Hawk
   # Builds the native protocol payload; hooks never receive integration tokens.
+  # @api private
   class Event
     def initialize(configuration:, id:, exception: nil, message: nil, context: {}, user: nil,
                    breadcrumbs: [], addons: {}, level: :error, filtered_paths: [])

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Hawk
+  # @api private
   module Breadcrumbs
     # Notification payloads are intentionally excluded from automatic breadcrumbs.
     module Rails

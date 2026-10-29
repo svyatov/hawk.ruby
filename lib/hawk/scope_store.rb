@@ -2,6 +2,7 @@
 
 module Hawk
   # Thread#[] stores values per fiber, including fibers sharing one thread.
+  # @api private
   class ScopeStore
     def initialize(configuration, anonymous_id)
       @configuration = configuration

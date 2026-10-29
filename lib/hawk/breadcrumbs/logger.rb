@@ -3,6 +3,7 @@
 require "logger"
 
 module Hawk
+  # @api private
   module Breadcrumbs
     # Logger keeps control of level filtering and lazy block evaluation.
     module Logger

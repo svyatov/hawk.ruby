@@ -5,6 +5,7 @@ require "rake"
 
 module Hawk
   # Optional task capture delegates execution and preserves application errors.
+  # @api private
   module Rake
     # Prepended to tasks without replacing their original execute implementation.
     module TaskMethods

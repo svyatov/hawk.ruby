@@ -2,6 +2,7 @@
 
 module Hawk
   # Backtraces remain useful when source files are unavailable or excluded.
+  # @api private
   class Source
     def initialize(configuration)
       @enabled = configuration.send_source

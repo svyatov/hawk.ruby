@@ -2,6 +2,7 @@
 
 module Hawk
   # Resolving the client at shutdown keeps repeated initialization idempotent.
+  # @api private
   module ProcessHooks
     def self.install
       return if @installed

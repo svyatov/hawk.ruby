@@ -2,6 +2,7 @@
 
 module Hawk
   # Copies boundary data into a bounded JSON tree without custom serializers.
+  # @api private
   class JSONValue
     def self.normalize(value)
       new.visit(value, 0)

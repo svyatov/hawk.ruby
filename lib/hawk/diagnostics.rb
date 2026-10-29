@@ -3,12 +3,14 @@
 module Hawk
   # Counters and callbacks contain no event data or collector credentials.
   class Diagnostics
+    # @api private
     def initialize(callback = nil, logger: nil)
       @callback = callback
       @logger = logger
       reset
     end
 
+    # @api private
     def increment(name)
       reset if @pid != Process.pid
       @mutex.synchronize { @counts[name] = @counts.fetch(name, 0) + 1 }
@@ -16,6 +18,12 @@ module Hawk
       nil
     end
 
+    # Returns a thread-safe copy of observed counters.
+    #
+    # Absent counters have not been incremented. Forked children start fresh counts.
+    #
+    # @return [Hash{Symbol => Integer}] counts such as :sent, :failed, :overflow,
+    #   :filtered, and :duplicate_overflow
     def snapshot
       reset if @pid != Process.pid
       @mutex.synchronize { @counts.dup }

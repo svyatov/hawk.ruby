@@ -4,8 +4,10 @@ require "securerandom"
 
 module Hawk
   # Execution data is copied at scope boundaries and before event delivery.
+  # Mutable execution data yielded by {Hawk.with_scope} and {Client#with_scope}.
   class Scope
     # Identity comparison avoids invoking application exception equality methods.
+    # @api private
     class Ledger
       def initialize
         @errors = {}
@@ -26,9 +28,18 @@ module Hawk
       end
     end
 
-    attr_reader :context, :user, :anonymous_id
+    # @return [Hash{String => Object}] copied context for this execution
+    attr_reader :context
+
+    # @return [Hash{String => Object}, nil] copied user data for this execution
+    attr_reader :user
+
+    # @return [String] fallback user identifier retained across copies of this scope
+    attr_reader :anonymous_id
+    # @api private
     attr_accessor :addons, :breadcrumbs, :ledger, :boundary, :request_metadata
 
+    # @api private
     def initialize(context: {}, user: nil, anonymous_id: SecureRandom.uuid)
       @context = JSONValue.object(context)
       @user = user ? JSONValue.object(user) : nil
@@ -42,20 +53,30 @@ module Hawk
       @filtered_user = false
     end
 
+    # Merges copied context, replacing matching top-level keys.
+    #
+    # @param context [Hash{String, Symbol => Object}] application context
+    # @return [void]
     def set_context(context)
       update_context(context, false)
     end
 
+    # Replaces the scoped user with copied data; nil clears it.
+    #
+    # @param user [Hash{String, Symbol => Object}, nil] user data
+    # @return [void]
     def set_user(user)
       update_user(user, false)
     end
 
+    # @api private
     def restore_filtered(context, user)
       update_context(context, true)
       update_user(user, true) if user
       nil
     end
 
+    # @api private
     def filtered_paths(except_context: [], user_override: false)
       paths = (@filtered_context_keys.keys - except_context).map { |key| ["context", key] }
       paths << ["user"] if @filtered_user && !user_override
@@ -63,11 +84,13 @@ module Hawk
       paths
     end
 
+    # @api private
     def event_addons
       reader = @request_metadata
       reader ? @addons.merge("request" => reader.call) : @addons
     end
 
+    # @api private
     def event_data(context, user, default_user, addons)
       context = JSONValue.object(context)
       value = JSONValue.object(user || @user || default_user || {})
@@ -76,6 +99,7 @@ module Hawk
         filtered_paths: filtered_paths(except_context: context.keys, user_override: !user.nil?) }
     end
 
+    # @api private
     def copy
       duplicate = Scope.new(context: @context, user: @user, anonymous_id: @anonymous_id)
       duplicate.addons = JSONValue.object(@addons)

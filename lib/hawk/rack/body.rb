@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Hawk
+  # @api private
   class Rack
     # Guards establish each foreign protocol before its type is narrowed.
     class Body

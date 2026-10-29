@@ -1,0 +1,9 @@
+--markup markdown
+--readme docs/api.md
+--title "Hawk Ruby API"
+--hide-api private
+--fail-on-warning
+lib/**/*.rb
+-
+docs/configuration.md
+docs/integrations.md

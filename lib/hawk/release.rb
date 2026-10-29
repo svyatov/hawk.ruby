@@ -4,6 +4,7 @@ require "open3"
 
 module Hawk
   # Git is consulted only during explicit initialization-time detection.
+  # @api private
   module Release
     def self.detect(configuration)
       return configuration.release if configuration.release
