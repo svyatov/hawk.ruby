@@ -144,7 +144,10 @@ module Hawk
     end
 
     def normal_termination?(exception)
-      exception.is_a?(SystemExit) || exception.is_a?(SignalException)
+      case exception
+      when SystemExit, SignalException then true
+      else false
+      end
     end
   end
 end

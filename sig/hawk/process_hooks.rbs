@@ -1,0 +1,7 @@
+module Hawk
+  module ProcessHooks
+    self.@installed: bool?
+    def self.install: () -> void
+    def self.report_exit: (Exception?) -> void
+  end
+end

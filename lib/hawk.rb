@@ -15,6 +15,7 @@ require_relative "hawk/client"
 require_relative "hawk/boundary"
 require_relative "hawk/transport"
 require_relative "hawk/delivery"
+require_relative "hawk/process_hooks"
 
 # The default client offers the same capture API as independent project clients.
 module Hawk
@@ -27,6 +28,8 @@ module Hawk
       replacement = Client.build(configuration)
       @client&.close
       @client = replacement
+      ProcessHooks.install if configuration.enabled? && configuration.global_errors
+      replacement
     end
 
     def capture_exception(exception, context: {}, user: nil, level: :error)

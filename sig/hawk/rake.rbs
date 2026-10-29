@@ -1,0 +1,13 @@
+module Hawk
+  interface _RakeTask
+    def name: () -> String
+    def execute: (?top) -> top
+  end
+
+  module Rake
+    module TaskMethods : _RakeTask
+      def execute: (?top) -> top
+    end
+    def self.install: () -> void
+  end
+end

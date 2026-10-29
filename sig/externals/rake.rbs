@@ -1,0 +1,6 @@
+module Rake
+  class Task
+    def name: () -> String
+    def execute: (?top) -> top
+  end
+end
