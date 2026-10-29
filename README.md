@@ -6,10 +6,10 @@ The gem reports exceptions, messages, backtraces, source snippets, breadcrumbs, 
 
 ## Install
 
-Version 0.1.0 is unreleased. Use this checkout with Bundler:
+Add the gem to your Gemfile:
 
 ```ruby
-gem "hawk-ruby", path: "../hawk.ruby", require: "hawk"
+gem "hawk-ruby", "~> 0.1.0", require: "hawk"
 ```
 
 ```sh

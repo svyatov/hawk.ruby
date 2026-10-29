@@ -42,7 +42,7 @@ module HawkQuality
 
     def verify_contents(spec)
       expected = Dir.glob("{lib/**/*.rb,sig/hawk.rbs,sig/hawk/**/*.rbs,docs/*.md}", base: @root)
-      expected += %w[LICENSE README.md]
+      expected += %w[LICENSE README.md CHANGELOG.md]
       raise "Unexpected package contents" unless spec.files.sort == expected.sort
     end
 

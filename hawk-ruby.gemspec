@@ -10,9 +10,13 @@ Gem::Specification.new do |spec|
   spec.homepage = "https://hawk.so"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.3"
-  spec.files = Dir["lib/**/*.rb", "sig/hawk.rbs", "sig/hawk/**/*.rbs", "docs/*.md"] + %w[LICENSE README.md]
+  spec.files = Dir["lib/**/*.rb", "sig/hawk.rbs", "sig/hawk/**/*.rbs", "docs/*.md"] + %w[LICENSE README.md CHANGELOG.md]
   spec.require_paths = ["lib"]
   spec.metadata["rubygems_mfa_required"] = "true"
+  spec.metadata["source_code_uri"] = "https://github.com/svyatov/hawk.ruby"
+  spec.metadata["bug_tracker_uri"] = "https://github.com/svyatov/hawk.ruby/issues"
+  spec.metadata["changelog_uri"] = "https://github.com/svyatov/hawk.ruby/blob/main/CHANGELOG.md"
+  spec.metadata["documentation_uri"] = "https://github.com/svyatov/hawk.ruby/blob/main/README.md"
 
   spec.add_dependency "base64", ">= 0.2", "< 1"
   spec.add_dependency "json", ">= 2.7", "< 4"
