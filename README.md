@@ -2,51 +2,43 @@
 
 Ruby error reporting for [Hawk](https://hawk.so), with optional Rails and background job integrations.
 
-The gem reports exceptions, messages, backtraces, source snippets, breadcrumbs, users, context, and application releases. It uses Hawk's native collector format.
+- Runs on CRuby 3.3 or later, with optional Rails and background job adapters.
+- Built for Hawk: sends events directly to its native collector without a forwarding service.
+- The default client bounds delivery to one background thread and a queue of 100 events.
+- Excludes request bodies, headers, cookies, and job arguments by default.
 
 ## Install
 
-Add the gem to your Gemfile:
-
-```ruby
-gem "hawk-ruby", "~> 0.1.0", require: "hawk"
-```
+Run this command from your application's directory, which must contain a Gemfile:
 
 ```sh
-bundle install
+bundle add hawk-ruby --version "~> 0.1.0" --require hawk
 ```
 
-To test a built artifact locally:
-
-```sh
-gem build hawk-ruby.gemspec
-gem install ./hawk-ruby-0.1.0.gem
-```
-
-The core requires CRuby 3.3 or later and packaged standard libraries. Rails and job frameworks are optional.
-
-## Configure and capture
-
-Copy the integration token from your Hawk project into `HAWK_TOKEN`.
+Copy the integration token from your Hawk project into `HAWK_TOKEN`. Save this example as `report.rb`:
 
 ```ruby
 require "hawk"
 
 Hawk.init do |config|
   config.token = ENV.fetch("HAWK_TOKEN")
-  config.release = ENV["HAWK_RELEASE"]
 end
 
+Hawk.capture_message("Hello from Ruby") # => String capture ID when accepted
+Hawk.flush(timeout: 5.0) # => true when pending delivery attempts finish
+```
+
+Run it with `bundle exec ruby report.rb`. A capture ID confirms local acceptance; it does not confirm receipt by Hawk.
+
+## Configure and capture
+
+After Hawk initialization, add this example to your application's `checkout.rb`:
+
+```ruby
 Hawk.set_context(component: "checkout")
 Hawk.set_user(id: "customer-42")
 Hawk.add_breadcrumb(message: "Payment started", category: "checkout")
-
-Hawk.capture do
-  perform_checkout
-end
-
-Hawk.capture_message("Checkout recovered", level: :warning)
-Hawk.flush(timeout: 5.0)
+Hawk.capture { raise "Checkout failed" } # raises RuntimeError after reporting
 ```
 
 `Hawk.capture` reports an escaping exception and raises the same exception again. You can also call `Hawk.capture_exception(error)` from a rescue handler.
@@ -59,7 +51,7 @@ Use `require: "hawk/rails"` in your Gemfile for Rails. Initialize Hawk in `confi
 
 Rails enables request capture, `Rails.error`, Action Cable, Active Job, and safe notification breadcrumbs. Solid Queue works through Active Job.
 
-Load each additional adapter explicitly:
+Add the relevant adapter requires to your application's startup file:
 
 ```ruby
 require "hawk/rack"
@@ -102,3 +94,9 @@ Use `bundle exec rake check:complexity` for local complexity feedback without co
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Help and maintenance
+
+Leonid Svyatov maintains Hawk Ruby. Use [GitHub issues](https://github.com/svyatov/hawk.ruby/issues) for questions and defect reports.
+
+Read the [changelog](CHANGELOG.md) for releases and the [contributing guide](CONTRIBUTING.md) to propose a change.
