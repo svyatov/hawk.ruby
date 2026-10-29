@@ -1,0 +1,5 @@
+module Hawk
+  module Boundary
+    def self.run: [A] (Client, kind: Symbol, metadata: payload, ?inherit: bool) { () -> A } -> A
+  end
+end

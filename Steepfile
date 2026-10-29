@@ -7,4 +7,5 @@ target :hawk do
   library "json"
   library "uri"
   library "open3"
+  library "securerandom"
 end

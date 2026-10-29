@@ -1,0 +1,15 @@
+module Hawk
+  class ScopeStore
+    @configuration: Configuration
+    @anonymous_id: String
+    @scope_key: String
+    @escape_key: String
+    def initialize: (Configuration, String) -> void
+    def current: () -> Scope
+    def replace: (Scope) -> void
+    def remember_escape: (Exception) -> void
+    def consume_escape: (Exception) -> bool
+    def clear_escape: () -> void
+    def clear: () -> void
+  end
+end

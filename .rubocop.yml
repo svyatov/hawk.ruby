@@ -23,3 +23,13 @@ Metrics/ParameterLists:
 Metrics/AbcSize:
   Exclude:
     - test/**/*
+
+# These public methods follow the approved set_context/set_user API.
+Naming/AccessorMethodName:
+  Exclude:
+    - lib/hawk.rb
+    - lib/hawk/client.rb
+    - lib/hawk/scope.rb
+
+Naming/PredicateMethod:
+  AllowedMethods: [call, flush, close, enqueue, consume_escape]

@@ -1,0 +1,21 @@
+module Hawk
+  class Scope
+    class Ledger
+      @errors: Hash[Exception, bool]
+      def initialize: () -> void
+      def accept: (Exception) -> (:duplicate | :overflow | :accepted)
+    end
+
+    attr_reader context: payload
+    attr_reader user: payload?
+    attr_reader anonymous_id: String
+    attr_accessor addons: payload
+    attr_accessor breadcrumbs: Array[payload]
+    attr_accessor ledger: Ledger
+    attr_accessor boundary: bool
+    def initialize: (?context: raw_context, ?user: raw_context?, ?anonymous_id: String) -> void
+    def set_context: (raw_context) -> void
+    def set_user: (raw_context?) -> void
+    def copy: () -> Scope
+  end
+end
