@@ -18,9 +18,7 @@ module Hawk
     end
 
     def self.supported_version?
-      specification = Gem.loaded_specs["delayed_job"]
-      return false unless specification
-
+      specification = Gem.loaded_specs.fetch("delayed_job")
       specification.version.to_s.start_with?("4.")
     end
 

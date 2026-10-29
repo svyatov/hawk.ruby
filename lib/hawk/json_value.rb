@@ -56,7 +56,7 @@ module Hawk
       entered = true
       case value
       when Array then value.take(100).map { |item| visit(item, depth + 1) }
-      when Hash then mapping(value, depth)
+      else mapping(value, depth)
       end
     ensure
       @seen.delete(value) if entered

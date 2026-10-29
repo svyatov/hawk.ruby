@@ -1,4 +1,5 @@
 module Rake
+  VERSION: String
   class Task
     def name: () -> String
     def execute: (?top) -> top

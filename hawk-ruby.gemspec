@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "lib/hawk/version"
-
 Gem::Specification.new do |spec|
   spec.name = "hawk-ruby"
-  spec.version = Hawk::VERSION
+  spec.version = File.read(File.expand_path("lib/hawk/version.rb", __dir__))[/VERSION = "([^"]+)"/, 1]
   spec.authors = ["Leonid Svyatov"]
   spec.email = ["leonid@svyatov.com"]
   spec.summary = "Ruby error reporting for Hawk"

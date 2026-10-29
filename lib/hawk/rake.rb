@@ -18,6 +18,8 @@ module Hawk
     end
 
     def self.install
+      return unless ::Rake::VERSION.start_with?("13.")
+
       ::Rake::Task.prepend(TaskMethods) unless ::Rake::Task.ancestors.include?(TaskMethods)
       nil
     end

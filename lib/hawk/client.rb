@@ -41,17 +41,21 @@ module Hawk
     def with_scope
       previous = current_scope
       @store.replace(previous.copy)
-      yield current_scope
-    ensure
-      @store.replace(previous) if previous
+      begin
+        yield current_scope
+      ensure
+        @store.replace(previous)
+      end
     end
 
     def using_scope(scope)
       previous = current_scope
       @store.replace(scope.copy)
-      yield
-    ensure
-      @store.replace(previous) if previous
+      begin
+        yield
+      ensure
+        @store.replace(previous)
+      end
     end
 
     def with_boundary(kind:, metadata:, inherit: false)
@@ -59,9 +63,11 @@ module Hawk
       @store.clear_escape unless previous.boundary
       scope = boundary_scope(previous, kind, metadata, inherit)
       @store.replace(scope)
-      yield
-    ensure
-      @store.replace(previous) if previous
+      begin
+        yield
+      ensure
+        @store.replace(previous)
+      end
     end
 
     def capture_exception(exception, context: {}, user: nil, level: :error)

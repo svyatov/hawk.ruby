@@ -75,4 +75,55 @@ class EventTest < HawkTest
     assert_equal "EventTest::BrokenMessage", JSON.parse(broken.encode).dig("payload", "title")
     assert_equal 1, JSON.parse(cyclic.encode).dig("payload", "addons", "causes").size
   end
+
+  def test_release_and_framework_filter_result_are_preserved
+    config = configuration
+    config.release = "release-42"
+    event = Hawk::Event.new(configuration: config, id: "id", message: "release")
+    assert_equal "release-42", JSON.parse(event.encode).dig("payload", "release")
+    config.framework_filter = ->(_) { false }
+
+    assert_nil event.encode
+  end
+
+  def test_oversized_frames_are_reduced_after_optional_data
+    config = configuration
+    config.before_send = lambda do |payload|
+      payload.merge("backtrace" => Array.new(100) { { "file" => "x" * 8192, "function" => "y" * 8192 } })
+    end
+    encoded = Hawk::Event.new(configuration: config, id: "id", message: "large frames").encode
+
+    assert_operator encoded.bytesize, :<=, 262_144
+    assert_equal 1, JSON.parse(encoded).dig("payload", "backtrace").size
+  end
+
+  def test_untrimmable_hook_fields_are_dropped_without_sending_oversized_data
+    config = configuration
+    config.before_send = ->(payload) { payload.merge((1..90).to_h { |number| [number.to_s, "x" * 8192] }) }
+
+    assert_nil Hawk::Event.new(configuration: config, id: "id", message: "too large").encode
+  end
+
+  def test_source_snippets_and_cause_arrays_are_trimmed_safely
+    config = configuration
+    config.before_send = lambda do |payload|
+      payload.merge("backtrace" => [{ "sourceCode" => "x" * 8192 }, "foreign frame"],
+                    "addons" => { "causes" => Array.new(100) { { "message" => "x" * 8192 } } })
+    end
+    encoded = Hawk::Event.new(configuration: config, id: "id", message: "large causes").encode
+
+    assert_operator encoded.bytesize, :<=, 262_144
+    refute JSON.parse(encoded).dig("payload", "backtrace").first.key?("sourceCode")
+  end
+
+  def test_non_object_addons_from_a_hook_do_not_break_size_trimming
+    config = configuration
+    config.before_send = lambda do |payload|
+      payload.merge("addons" => false, "backtrace" => Array.new(100) { "frame" * 1500 })
+    end
+    encoded = Hawk::Event.new(configuration: config, id: "id", message: "foreign addons").encode
+
+    assert_operator encoded.bytesize, :<=, 262_144
+    assert_equal "foreign addons", JSON.parse(encoded).dig("payload", "title")
+  end
 end

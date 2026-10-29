@@ -1,0 +1,4 @@
+# Process.detach's waiter thread always returns the reaped process status.
+class Process::Waiter
+  def value: () -> Process::Status
+end

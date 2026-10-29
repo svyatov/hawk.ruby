@@ -65,4 +65,30 @@ class TransportTest < HawkTest
     assert_equal :failed, Hawk::Transport.new(@config).send("{}")
     assert_equal 1, @collector.events.size
   end
+
+  def test_scalar_success_body_is_rejected
+    @collector.body = "null"
+
+    assert_equal :failed, Hawk::Transport.new(@config).send("{}")
+  end
+
+  def test_date_and_malformed_retry_after_headers_are_bounded
+    @collector.status = 429
+    [Time.now.httpdate, "invalid-date"].each do |header|
+      @collector.headers = { "Retry-After" => header }
+      assert_equal :limited, Hawk::Transport.new(@config).send("{}")
+    end
+  end
+
+  def test_total_deadline_stops_a_collector_that_keeps_trickling_bytes
+    @config.read_timeout = 2.0
+    @collector.chunk_delay = 0.2
+    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
+    assert_equal :failed, Hawk::Transport.new(@config).send("{}")
+    elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
+    assert_operator elapsed, :>=, 4.5
+    assert_operator elapsed, :<, 6
+    assert_equal 1, @collector.events.size
+  end
 end

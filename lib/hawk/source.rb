@@ -36,9 +36,7 @@ module Hawk
       match = /\A(.+):(\d+)(?::in [`'](.*)[`'])?\z/.match(value)
       return unless match
 
-      path = match[1]
-      line = match[2]
-      frame(path, line.to_i, match[3]) if path && line
+      frame(match[1].to_s, match[2].to_i, match[3])
     end
 
     def frame(path, line, function)

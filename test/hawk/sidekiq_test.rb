@@ -3,6 +3,7 @@
 require "test_helper"
 require "support/rails_capture"
 require "support/redis_server"
+require "support/subprocess"
 require "sidekiq"
 require "sidekiq/processor"
 require "sidekiq/fetch"
@@ -103,5 +104,34 @@ class SidekiqIntegrationTest < RailsCaptureTest
 
     assert_nil @collector.events.last.dig("payload", "context", "section")
     assert_equal "enqueue-only", Hawk.client.current_scope.context["section"]
+  end
+
+  def test_missing_client_preserves_native_job_failure
+    job = enqueue
+    Hawk.close
+    assert_raises(RuntimeError) { process(job) }
+
+    assert_empty @collector.events
+  end
+
+  def test_job_arguments_require_explicit_opt_in
+    Hawk.client.configuration.include_job_arguments = true
+    assert_raises(RuntimeError) { process(enqueue) }
+
+    assert_equal ["original"], @collector.events.last.dig("payload", "addons", "job", "arguments")
+  end
+
+  def test_unsupported_sidekiq_major_is_not_registered
+    program = <<~RUBY
+      require "sidekiq"
+      Sidekiq.send(:remove_const, :VERSION)
+      Sidekiq.const_set(:VERSION, "9.0.0")
+      require "hawk/sidekiq"
+      print Sidekiq.default_configuration.client_middleware.exists?(Hawk::Sidekiq::ClientMiddleware)
+    RUBY
+    output, error, status = Subprocess.run(program)
+
+    assert status.success?, error
+    assert_equal "false", output
   end
 end

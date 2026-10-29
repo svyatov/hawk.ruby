@@ -2,22 +2,22 @@
 
 require "csv"
 require "open3"
+require_relative "quality/types"
+
+libraries = %w[base64 json uri open3 securerandom net-http timeout time logger]
+arguments = libraries.flat_map { |library| ["-r", library] }
+abort "RBS validation failed" unless system("bundle", "exec", "rbs", "-I", "sig", *arguments, "validate")
 
 checked, diagnostics, checked_status = Open3.capture3("bundle", "exec", "steep", "check", "-j", "2")
 $stdout.write(checked)
 $stderr.write(diagnostics)
-failed = !checked_status.success? || (checked + diagnostics).match?(/FATAL:|Unexpected error:/)
-abort "Steep check failed" if failed
+abort "Steep check failed" unless checked_status.success?
+HawkQuality::Types.verify_output!(checked + diagnostics)
 
 output, error, status = Open3.capture3("bundle", "exec", "steep", "stats", "--format=csv", "-j", "2")
-abort error unless status.success? && !error.match?(/FATAL:|Unexpected error:/)
+abort error unless status.success?
+HawkQuality::Types.verify_output!(error)
 
 rows = CSV.parse(output, headers: true)
-expected = Dir["lib/**/*.rb"]
-observed = rows.map { |row| row.fetch("File") }
-abort "Type analysis omitted runtime files" unless (expected - observed).empty? && (observed - expected).empty?
-
-invalid = rows.reject { |row| row["Status"] == "success" && Integer(row.fetch("Untyped calls")).zero? }
-abort "Untyped calls or failed type analysis: #{invalid.map { |row| row['File'] }.join(', ')}" unless invalid.empty?
-
-puts "Types: #{expected.size} files, zero untyped calls"
+HawkQuality::Types.verify!(Dir.pwd, rows)
+puts "Types: #{rows.size} files, zero untyped calls"

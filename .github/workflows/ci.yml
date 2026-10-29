@@ -8,7 +8,16 @@ permissions:
   contents: read
 
 jobs:
-  core:
+  matrix:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: matrix
+        run: ruby script/test_lanes.rb
+
+  quality:
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -20,5 +29,59 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-      - run: bundle exec rake check:fast
+      - run: bundle exec rake check:lint check:types test:quality
       - run: gem build hawk-ruby.gemspec
+
+  tests:
+    needs: matrix
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.matrix.outputs.matrix) }}
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/${{ matrix.gemfile }}
+      BUNDLE_LOCKFILE: ${{ github.workspace }}/${{ matrix.gemfile }}.lock
+      HAWK_COVERAGE_RUN: ci-${{ github.run_id }}-${{ github.run_attempt }}
+      HAWK_COVERAGE_LANE: ${{ matrix.lane }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: sudo apt-get install -y redis
+      - run: bundle exec ruby script/run_lane.rb "${{ matrix.name }}"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-${{ matrix.lane }}
+          path: coverage/runs/${{ env.HAWK_COVERAGE_RUN }}/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  coverage:
+    needs: tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: true
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*
+          path: coverage/runs/ci-${{ github.run_id }}-${{ github.run_attempt }}/
+          merge-multiple: true
+      - run: bundle exec ruby script/merge_ci_coverage.rb "ci-${{ github.run_id }}-${{ github.run_attempt }}"
+      - run: bundle exec rake check:crap
+
+  security:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: true
+      - run: bundle exec rake check:audit

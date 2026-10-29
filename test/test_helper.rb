@@ -1,11 +1,6 @@
 # frozen_string_literal: true
 
-require "simplecov"
-SimpleCov.start do
-  coverage :line
-  coverage :branch
-  cover "lib/**/*.rb"
-end
+require_relative "support/coverage_start"
 
 require "minitest/autorun"
 require "base64"

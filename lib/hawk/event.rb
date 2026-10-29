@@ -6,13 +6,14 @@ module Hawk
     def initialize(configuration:, id:, exception: nil, message: nil, context: {}, user: nil,
                    breadcrumbs: [], addons: {}, level: :error)
       @configuration = configuration
+      @addons = metadata(id, level).merge(JSONValue.object(addons))
       @payload = {
         "title" => exception ? title(exception) : (message || "Message"),
         "type" => exception ? exception.class.name.to_s : "Message",
         "catcherVersion" => VERSION,
         "context" => JSONValue.normalize(context),
         "breadcrumbs" => JSONValue.normalize(breadcrumbs),
-        "addons" => metadata(id, level).merge(JSONValue.object(addons))
+        "addons" => @addons
       }
       @payload["user"] = JSONValue.normalize(user) if user
       @payload["release"] = configuration.release if configuration.release
@@ -62,11 +63,8 @@ module Hawk
 
     def attach_exception(exception)
       @payload["backtrace"] = Source.new(@configuration).frames(exception)
-      case addons = @payload["addons"]
-      when Hash
-        chain = causes(exception)
-        addons["causes"] = chain unless chain.empty?
-      end
+      chain = causes(exception)
+      @addons["causes"] = chain unless chain.empty?
     end
 
     def causes(exception)
@@ -118,7 +116,7 @@ module Hawk
         when Hash then keep_first(addons, "causes")
         end
       when :context, :addons then payload.delete(phase.to_s)
-      when :frames then keep_first(payload, "backtrace")
+      else keep_first(payload, "backtrace")
       end
     end
 

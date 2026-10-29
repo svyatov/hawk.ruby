@@ -2,6 +2,7 @@
 
 require "test_helper"
 require "support/rails_capture"
+require "support/subprocess"
 require "active_support/testing/time_helpers"
 require "delayed_job_active_record"
 require "hawk/delayed_job"
@@ -92,5 +93,30 @@ class DelayedJobIntegrationTest < RailsCaptureTest
     @worker.work_off(1)
 
     assert_equal 1, @collector.events.size
+  end
+
+  def test_missing_client_preserves_job_execution_and_callback_registration
+    Hawk.close
+    job = Delayed::Job.enqueue(HawkDelayedPayload.new)
+    assert_nil Hawk::DelayedJob::AROUND.call(nil, job)
+    @worker.work_off(1)
+
+    assert_equal 1, job.reload.attempts
+    assert_empty @collector.events
+  end
+
+  def test_unsupported_delayed_job_major_is_not_registered
+    program = <<~RUBY
+      require "delayed_job"
+      spec = Gem.loaded_specs.fetch("delayed_job").to_spec
+      spec.version = "5.0.0"
+      Gem.loaded_specs["delayed_job"] = spec
+      require "hawk/delayed_job"
+      print Delayed::Worker.plugins.include?(Hawk::DelayedJob::Plugin)
+    RUBY
+    output, error, status = Subprocess.run(program)
+
+    assert status.success?, error
+    assert_equal "false", output
   end
 end

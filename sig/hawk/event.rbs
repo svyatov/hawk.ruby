@@ -1,5 +1,6 @@
 module Hawk
   class Event
+    @addons: payload
     @configuration: Configuration
     @payload: payload
     def initialize: (configuration: Configuration, id: String, ?exception: Exception?, ?message: String?, ?context: raw_context, ?user: raw_context?, ?breadcrumbs: Array[payload], ?addons: payload, ?level: Symbol) -> void

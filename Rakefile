@@ -22,6 +22,9 @@ Rake::TestTask.new(:test) do |task|
 end
 
 namespace :test do
+  task :quality do
+    sh "bundle", "exec", "rake", "test", "TEST=test/quality/**/*_test.rb"
+  end
   INTEGRATION_BUNDLES.each do |name, (bundle, pattern)|
     task name do
       gemfile = File.expand_path("gemfiles/#{bundle}.gemfile")
@@ -33,6 +36,21 @@ namespace :test do
 end
 
 namespace :check do
+  task :audit do
+    sh "bundle", "exec", "ruby", "script/check_audit.rb"
+  end
+
+  task :complexity do
+    sh "bundle", "exec", "crap4ruby", "lib", "--no-coverage", "--no-save"
+  end
+
+  task :coverage do
+    sh "bundle", "exec", "ruby", "script/collect_coverage.rb"
+  end
+
+  task :crap do
+    sh "bundle", "exec", "ruby", "script/check_crap.rb"
+  end
   task :lint do
     sh "bundle", "exec", "rubocop"
   end

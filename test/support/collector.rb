@@ -3,13 +3,14 @@
 require "socket"
 
 class Collector
-  attr_accessor :status, :body, :headers, :delay
+  attr_accessor :status, :body, :headers, :delay, :chunk_delay
 
   def initialize
     @status = 200
     @body = JSON.generate("code" => 200, "error" => false, "message" => "OK")
     @headers = {}
     @delay = 0.0
+    @chunk_delay = 0.0
     @events = []
     @mutex = Mutex.new
     @connections = []
@@ -47,20 +48,32 @@ class Collector
   end
 
   def respond(socket)
+    data = read_request(socket)
+    @mutex.synchronize { @events << JSON.parse(data) }
+    sleep @delay
+    write_response(socket)
+  rescue IOError, SystemCallError, JSON::ParserError
+    nil
+  ensure
+    socket.close unless socket.closed?
+  end
+
+  def read_request(socket)
     socket.gets
     length = 0
     while (line = socket.gets) && line != "\r\n"
       length = line.split(":", 2).last.to_i if line.downcase.start_with?("content-length:")
     end
-    data = socket.read(length)
-    @mutex.synchronize { @events << JSON.parse(data) }
-    sleep @delay
+    socket.read(length)
+  end
+
+  def write_response(socket)
     extras = @headers.map { |key, value| "#{key}: #{value}\r\n" }.join
     socket.write("HTTP/1.1 #{@status} Test\r\nContent-Type: application/json\r\n" \
-                 "Content-Length: #{@body.bytesize}\r\nConnection: close\r\n#{extras}\r\n#{@body}")
-  rescue IOError, SystemCallError, JSON::ParserError
-    nil
-  ensure
-    socket.close unless socket.closed?
+                 "Content-Length: #{@body.bytesize}\r\nConnection: close\r\n#{extras}\r\n")
+    @body.each_byte do |byte|
+      socket.write(byte.chr)
+      sleep @chunk_delay if @chunk_delay.positive?
+    end
   end
 end

@@ -120,3 +120,91 @@ class RackIntegrationTest < HawkTest
     refute_includes JSON.generate(@delivery.payloads), secret
   end
 end
+
+class RackEdgeCaseTest < HawkTest
+  class BrokenEnvironment < Hash
+    def slice(*)
+      raise "metadata unavailable"
+    end
+  end
+
+  class ClosingCallable < RackIntegrationTest::CallableBody
+    def close
+      raise "callable close failed"
+    end
+  end
+
+  def test_inactive_or_disabled_clients_keep_native_application_results
+    app = ->(_) { [201, {}, ["native"]] }
+    Hawk.close
+    assert_equal [201, {}, ["native"]], Hawk::Rack.new(app).call({})
+    config = configuration
+    config.integrations[:rack] = false
+    client = Hawk::Client.new(config, delivery: RecordingDelivery.new)
+    assert_equal [201, {}, ["native"]], Hawk::Rack.new(app, client: client).call({})
+  end
+
+  def test_opted_in_request_fields_are_detached_and_filtered
+    delivery = RecordingDelivery.new
+    config = configuration
+    config.include_headers = config.include_cookies = config.include_request_body = true
+    config.filter_parameters = ["cookie"]
+    client = Hawk::Client.new(config, delivery: delivery)
+    env = Rack::MockRequest.env_for("/")
+    env.merge!("HTTP_AUTHORIZATION" => "secret", "HTTP_X_OPERATION" => "checkout", "HTTP_COOKIE" => "session=secret",
+               "RAW_POST_DATA" => { "password" => "secret", "action" => "submit" })
+    app = Hawk::Rack.new(->(_) { raise "request" }, client: client)
+
+    assert_raises(RuntimeError) { app.call(env) }
+    request = delivery.payloads.last.dig("addons", "request")
+    assert_equal "[FILTERED]", request.dig("headers", "HTTP_AUTHORIZATION")
+    assert_equal "checkout", request.dig("headers", "HTTP_X_OPERATION")
+    assert_equal "[FILTERED]", request["cookies"]
+    assert_equal({ "password" => "[FILTERED]", "action" => "submit" }, request["body"])
+  end
+
+  def test_bad_metadata_cannot_replace_an_application_failure
+    delivery = RecordingDelivery.new
+    client = Hawk::Client.new(configuration, delivery: delivery)
+    error = RuntimeError.new("native")
+    app = Hawk::Rack.new(->(_) { raise error }, client: client)
+
+    assert_same error, assert_raises(RuntimeError) { app.call(BrokenEnvironment.new) }
+    assert_equal({}, delivery.payloads.last.dig("addons", "request"))
+  end
+
+  def test_closing_the_default_client_during_a_request_keeps_native_failure
+    delivery = RecordingDelivery.new
+    client = Hawk::Client.new(configuration, delivery: delivery)
+    Hawk.instance_variable_set(:@client, client)
+    app = Hawk::Rack.new(lambda do |_|
+      Hawk.close
+      raise "closed during request"
+    end)
+    assert_raises(RuntimeError) { app.call(Rack::MockRequest.env_for("/closed")) }
+    assert_empty delivery.payloads
+  ensure
+    Hawk.close
+  end
+
+  def test_body_protocols_preserve_optional_close_and_opaque_values
+    client = Hawk::Client.new(configuration, delivery: RecordingDelivery.new)
+    opaque = Object.new
+    assert_same opaque, Hawk::Rack::Body.wrap(opaque, client: client, scope: client.current_scope.copy)
+    body = Hawk::Rack::Body.wrap(["ok"], client: client, scope: client.current_scope.copy)
+    assert_nil body.close
+    callable = Hawk::Rack::Body.wrap(RackIntegrationTest::CallableBody.new, client: client,
+                                                                            scope: client.current_scope.copy)
+    assert_nil callable.close
+  end
+
+  def test_callable_close_errors_keep_their_scope_and_original_failure
+    delivery = RecordingDelivery.new
+    client = Hawk::Client.new(configuration, delivery: delivery)
+    app = Hawk::Rack.new(->(_) { [200, {}, ClosingCallable.new] }, client: client)
+    body = app.call(Rack::MockRequest.env_for("/close-callable"))[2]
+
+    assert_equal "callable close failed", assert_raises(RuntimeError) { body.close }.message
+    assert_equal "/close-callable", delivery.payloads.last.dig("addons", "request", "path")
+  end
+end

@@ -22,10 +22,7 @@ module Hawk
         end
 
         revision = output.read(128)
-        case status = waiter.value
-        when Process::Status
-          revision&.strip if status.success?
-        end
+        revision&.strip if waiter.value.success?
       end
     rescue SystemCallError, IOError
       nil

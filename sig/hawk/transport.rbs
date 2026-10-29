@@ -22,7 +22,7 @@ module Hawk
     def reset: () -> void
     def monotonic: () -> Float
     def connection: (URI::HTTP) -> Net::HTTP
-    def request: (String) -> Symbol
+    def request: (String, URI::HTTP) -> Symbol
     def handle: (Net::HTTPResponse) -> Symbol
     def response_body: (Net::HTTPResponse) -> String
     def success?: (String) -> bool

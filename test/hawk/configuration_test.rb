@@ -79,4 +79,11 @@ class ConfigurationTest < HawkTest
     config.before_send = "not callable"
     assert_raises(Hawk::ConfigurationError) { config.validate! }
   end
+
+  def test_invalid_uri_syntax_has_a_configuration_error
+    config = configuration
+    config.endpoint = "https://[invalid"
+
+    assert_raises(Hawk::ConfigurationError) { config.validate! }
+  end
 end

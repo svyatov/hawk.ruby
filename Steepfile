@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 target :hawk do
+  configure_code_diagnostics do |diagnostics|
+    diagnostics[Steep::Diagnostic::Ruby::UndeclaredMethodDefinition] = :error
+    diagnostics[Steep::Diagnostic::Ruby::SyntaxError] = :error
+    diagnostics[Steep::Diagnostic::Ruby::UnexpectedError] = :error
+  end
   check "lib"
   signature "sig"
   library "base64"

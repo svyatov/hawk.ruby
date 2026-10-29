@@ -23,9 +23,10 @@ module Hawk
     end
 
     def send(encoded)
-      return :limited unless available?
+      uri = @uri
+      return :limited unless uri && available?
 
-      Breadcrumbs.guard(:sdk) { Timeout.timeout(5.0) { request(encoded) } }
+      Breadcrumbs.guard(:sdk) { Timeout.timeout(5.0) { request(encoded, uri) } }
     rescue StandardError
       :failed
     end
@@ -52,10 +53,7 @@ module Hawk
       http
     end
 
-    def request(encoded)
-      uri = @uri
-      return :failed unless uri
-
+    def request(encoded, uri)
       post = Net::HTTP::Post.new(uri.request_uri)
       post["Content-Type"] = "application/json"
       post.body = encoded

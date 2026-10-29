@@ -4,6 +4,70 @@ require "test_helper"
 require "tmpdir"
 
 class SourceTest < HawkTest
+  class MissingLocation < RuntimeError
+    def backtrace_locations
+      [Struct.new(:absolute_path, :path, :lineno, :base_label).new(nil, nil, 1, "unknown")]
+    end
+  end
+
+  class GrowingSource < Hawk::Source
+    private
+
+    def readable_path(path)
+      resolved = super
+      File.write(resolved, "x" * 1_048_577) if resolved
+      resolved
+    end
+  end
+
+  class RemovedSource < Hawk::Source
+    private
+
+    def readable_path(path)
+      resolved = super
+      File.unlink(resolved) if resolved
+      resolved
+    end
+  end
+
+  def test_a_file_removed_after_validation_keeps_the_frame_without_source
+    Dir.mktmpdir do |root|
+      path = File.join(root, "removed.rb")
+      File.write(path, "before\n")
+      config = configuration
+      config.source_roots = [root]
+      error = RuntimeError.new
+      error.set_backtrace(["#{path}:1"])
+
+      frame = RemovedSource.new(config).frames(error).first
+      assert_equal path, frame.fetch("file")
+      refute frame.key?("sourceCode")
+    end
+  end
+
+  def test_invalid_locations_and_nonpositive_lines_are_omitted
+    source = Hawk::Source.new(configuration)
+    assert_empty source.frames(MissingLocation.new)
+    error = RuntimeError.new
+    error.set_backtrace(["#{__FILE__}:0"])
+    assert_empty source.frames(error)
+  end
+
+  def test_files_that_grow_after_validation_are_not_read_as_source
+    Dir.mktmpdir do |root|
+      path = File.join(root, "growing.rb")
+      File.write(path, "before\n")
+      error = RuntimeError.new
+      error.set_backtrace(["#{path}:1"])
+      config = configuration
+      config.source_roots = [root]
+
+      refute GrowingSource.new(config).frames(error).first.key?("sourceCode")
+      error.set_backtrace(["#{root}/growing.rb:1"])
+      refute Hawk::Source.new(config).frames(error).first.key?("sourceCode")
+    end
+  end
+
   def test_fallback_backtrace_extracts_source_at_file_boundary
     Dir.mktmpdir do |root|
       path = File.join(root, "example.rb")

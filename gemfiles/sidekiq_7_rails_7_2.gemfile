@@ -1,0 +1,4 @@
+# frozen_string_literal: true
+
+eval_gemfile "rails_7_2.gemfile"
+gem "sidekiq", "7.3.10"
