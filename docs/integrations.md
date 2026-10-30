@@ -1,6 +1,10 @@
 # Integrations
 
-Load optional adapters before workers start. Keep their framework gems in the application's Gemfile.
+Keep framework gems in the application's Gemfile. Hawk detects loaded frameworks when it loads and when you call `Hawk.init`.
+
+Load application dependencies before initializing Hawk, and initialize before workers start. Frameworks loaded after initialization are not automatically detected. Hawk does not load unused frameworks.
+
+Use `gem "hawk-ruby"` without a `require:` option. Explicit `require "hawk"` and adapter-specific requires remain supported for existing applications.
 
 ## Supported versions
 
@@ -22,7 +26,7 @@ The adapters guard their supported framework versions. Resque activation require
 ## Rack
 
 ```ruby
-require "hawk/rack"
+require "hawk-ruby"
 
 Hawk.init { |config| config.token = ENV.fetch("HAWK_TOKEN") }
 use Hawk::Rack
@@ -39,7 +43,7 @@ Use `Hawk::Rack.new(app, client: other_client)` for an independent project clien
 
 ## Rails requests and framework reports
 
-Use `require: "hawk/rails"` in your Gemfile. The Railtie inserts Hawk inside `ActionDispatch::DebugExceptions`.
+Rails loads Hawk through Bundler without a custom `require:` option. The Railtie inserts Hawk inside `ActionDispatch::DebugExceptions`.
 
 ```ruby
 # config/initializers/hawk.rb
@@ -50,7 +54,7 @@ Hawk.init do |config|
 end
 ```
 
-If Rails is already loaded, requiring `hawk` also discovers its Railtie. Rails filtering runs before the application's `before_send` hook.
+Load Hawk during Rails boot, before application initialization. Rails filtering runs before the application's `before_send` hook.
 
 The subscriber records explicit `Rails.error.report` calls, including handled errors and severity. Request dispatch reports share ownership with middleware to prevent duplicates.
 
@@ -92,9 +96,7 @@ Solid Queue uses this same Active Job contract. Tests exercise its database-back
 
 ## Sidekiq
 
-```ruby
-require "hawk/sidekiq"
-```
+Hawk automatically activates the adapter when Sidekiq is loaded before Hawk initialization.
 
 Client middleware adds versioned context under a separate top-level `hawk` field. Server middleware starts an execution scope.
 
@@ -106,9 +108,7 @@ The adapter retains native payload arguments and retry behavior. Raw arguments r
 
 ## Resque
 
-```ruby
-require "hawk/resque"
-```
+Hawk automatically activates the adapter when Resque is loaded before Hawk initialization.
 
 The adapter wraps job execution and delegates failure creation to the configured backend. Failed constantization and other failures before execution reach that backend path.
 
@@ -120,11 +120,7 @@ Active Job wrappers retain their own serialized context. Raw direct arguments re
 
 ## Delayed Job
 
-```ruby
-require "hawk/delayed_job"
-```
-
-Load the adapter before starting a worker. Its plugin observes perform, error, and failure callbacks, including handler deserialization failures.
+Hawk automatically activates the adapter when Delayed Job is loaded before Hawk initialization. Its plugin observes perform, error, and failure callbacks, including handler deserialization failures.
 
 Native attempts, retry times, and terminal failure state remain unchanged. Direct job YAML and database columns remain unchanged.
 
@@ -132,11 +128,7 @@ Active Job wrappers carry their own versioned context. Direct jobs start fresh s
 
 ## Rake and process shutdown
 
-```ruby
-require "hawk/rake"
-```
-
-The Rake adapter reports escaping task failures and retains original task behavior. Nested task failures share automatic-report ownership.
+Hawk automatically activates the adapter when Rake is loaded before Hawk initialization. The adapter reports escaping task failures and retains original task behavior. Nested task failures share automatic-report ownership.
 
 Core initialization installs one process exit hook when `global_errors` is enabled. It reports eligible uncaught main-process errors and attempts a bounded drain.
 

@@ -33,6 +33,8 @@ require_relative "hawk/process_hooks"
 #   Hawk.flush(timeout: 5.0)
 # @see Client For independent project clients.
 module Hawk
+  autoload :Rack, File.expand_path("hawk/rack", __dir__.to_s)
+
   class << self
     # @return [Client, nil] default client, or nil before initialization or after close
     attr_reader :client
@@ -47,6 +49,7 @@ module Hawk
     # @return [Client] replacement client
     # @raise [ConfigurationError] if configuration is invalid
     def init
+      Integrations.load
       configuration = Configuration.new
       yield configuration
       Rails.configure(configuration) if defined?(Hawk::Rails)
@@ -127,4 +130,5 @@ module Hawk
   end
 end
 
-require_relative "hawk/rails/integration" if defined?(Rails::Railtie)
+require_relative "hawk/integrations"
+Hawk::Integrations.load

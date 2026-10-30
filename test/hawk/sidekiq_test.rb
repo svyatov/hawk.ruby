@@ -8,7 +8,7 @@ require "sidekiq"
 require "sidekiq/processor"
 require "sidekiq/fetch"
 require "sidekiq/api"
-require "hawk/sidekiq"
+require "support/integration_loading"
 require_relative "rails/active_job_test"
 
 class HawkSidekiqJob
@@ -20,6 +20,13 @@ class HawkSidekiqJob
 end
 
 class SidekiqIntegrationTest < RailsCaptureTest
+  include IntegrationLoading
+
+  def test_automatic_startup_loading
+    assert_startup_loading("sidekiq",
+                           "Sidekiq.default_configuration.client_middleware.exists?(Hawk::Sidekiq::ClientMiddleware)")
+  end
+
   def setup
     super
     @redis = RedisServer.new

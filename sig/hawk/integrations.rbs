@@ -1,0 +1,3 @@
+module Hawk::Integrations
+  def self.load: () -> void
+end

@@ -6,7 +6,7 @@ require "support/redis_server"
 require "support/subprocess"
 require "resque"
 require "resque/failure"
-require "hawk/resque"
+require "support/integration_loading"
 require_relative "rails/active_job_test"
 
 class HawkResqueJob
@@ -24,6 +24,12 @@ class HawkResqueHookJob < HawkResqueJob
 end
 
 class ResqueIntegrationTest < RailsCaptureTest
+  include IntegrationLoading
+
+  def test_automatic_startup_loading
+    assert_startup_loading("resque", "Resque::Job.ancestors.count(Hawk::Resque::JobMethods) == 1")
+  end
+
   class BrokenOptions < Hash
     def [](_key)
       raise "options reader failed"

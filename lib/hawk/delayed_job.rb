@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../hawk"
+require_relative "../hawk" unless defined?(Hawk.init)
 require "delayed_job"
 require "delayed/plugin"
 

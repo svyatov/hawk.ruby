@@ -39,3 +39,8 @@ Naming/AccessorMethodName:
 
 Naming/PredicateMethod:
   AllowedMethods: [call, flush, close, enqueue, accept, consume_escape]
+
+# Bundler loads this entry point using the gem's published name.
+Naming/FileName:
+  Exclude:
+    - lib/hawk-ruby.rb

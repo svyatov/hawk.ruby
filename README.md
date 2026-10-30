@@ -12,13 +12,13 @@ Ruby error reporting for [Hawk](https://hawk.so), with optional Rails and backgr
 Run this command from your application's directory, which must contain a Gemfile:
 
 ```sh
-bundle add hawk-ruby --version "~> 0.1.1" --require hawk
+bundle add hawk-ruby --version "~> 0.1.1"
 ```
 
 Copy the integration token from your Hawk project into `HAWK_TOKEN`. Save this example as `report.rb`:
 
 ```ruby
-require "hawk"
+require "hawk-ruby"
 
 Hawk.init do |config|
   config.token = ENV.fetch("HAWK_TOKEN")
@@ -47,21 +47,19 @@ A missing or empty token disables reporting. A malformed nonempty token raises `
 
 ## Rails and background jobs
 
-Use `require: "hawk/rails"` in your Gemfile for Rails. Initialize Hawk in `config/initializers/hawk.rb` before workers start.
+Use the standard Gemfile entry without a `require:` option. Initialize Hawk in `config/initializers/hawk.rb` before workers start:
+
+```ruby
+Hawk.init do |config|
+  config.token = ENV.fetch("HAWK_TOKEN")
+end
+```
 
 Rails enables request capture, `Rails.error`, Action Cable, Active Job, and safe notification breadcrumbs. Solid Queue works through Active Job.
 
-Add the relevant adapter requires to your application's startup file:
+Hawk automatically detects loaded Rails, Rake, Sidekiq, Resque, and Delayed Job integrations during startup. Load application dependencies before calling `Hawk.init`. No adapter requires are needed.
 
-```ruby
-require "hawk/rack"
-require "hawk/rake"
-require "hawk/sidekiq"
-require "hawk/resque"
-require "hawk/delayed_job"
-```
-
-Rails also detects loaded job backends during initialization. The adapters preserve native retries, arguments, and failure storage.
+For a standalone Rack application, add `use Hawk::Rack` to `config.ru`. Rails inserts this middleware automatically. The adapters preserve native retries, arguments, and failure storage.
 
 See [integrations](docs/integrations.md) for placement, supported versions, propagation limits, and exclusions.
 

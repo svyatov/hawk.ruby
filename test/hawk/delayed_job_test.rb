@@ -5,7 +5,7 @@ require "support/rails_capture"
 require "support/subprocess"
 require "active_support/testing/time_helpers"
 require "delayed_job_active_record"
-require "hawk/delayed_job"
+require "support/integration_loading"
 require_relative "rails/active_job_test"
 
 ActiveRecord::Schema.define do
@@ -31,6 +31,11 @@ end
 
 class DelayedJobIntegrationTest < RailsCaptureTest
   include ActiveSupport::Testing::TimeHelpers
+  include IntegrationLoading
+
+  def test_automatic_startup_loading
+    assert_startup_loading("delayed_job", "Delayed::Worker.plugins.count(Hawk::DelayedJob::Plugin) == 1")
+  end
 
   def setup
     super
