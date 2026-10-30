@@ -17,7 +17,7 @@ class LoadingTest < Minitest::Test
     output, error, status = Open3.capture3("ruby", "-Ilib", "-e", script)
 
     assert status.success?, error
-    assert_equal "0.1.1\n", output
+    assert_equal "0.1.2\n", output
   end
 
   def test_package_name_loads_the_core_and_rack_without_frameworks

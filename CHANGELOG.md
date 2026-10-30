@@ -6,6 +6,8 @@ Versions follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-30
+
 ### Added
 
 - Support standard Bundler loading without a custom `require:` option.
@@ -35,6 +37,7 @@ Initial release of the Hawk Ruby error reporting gem.
 - Provide bounded asynchronous delivery, execution-local scopes, duplicate suppression, fork recovery, privacy filters, and event hooks.
 - Ship RBS signatures and enforce complete type coverage, 100% line and branch coverage, and measured CRAP scores no greater than 10.
 
-[Unreleased]: https://github.com/svyatov/hawk.ruby/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/svyatov/hawk.ruby/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/svyatov/hawk.ruby/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/svyatov/hawk.ruby/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/svyatov/hawk.ruby/releases/tag/v0.1.0

@@ -29,7 +29,7 @@ class EventTest < HawkTest
     assert_equal "divided by 0", payload.fetch("title")
     assert_equal "[FILTERED]", payload.dig("context", "password")
     assert_equal "local-id", payload.dig("addons", "event_id")
-    assert_equal "0.1.1", payload.fetch("catcherVersion")
+    assert_equal "0.1.2", payload.fetch("catcherVersion")
     assert_operator event.encode.bytesize, :<=, 262_144
   end
 

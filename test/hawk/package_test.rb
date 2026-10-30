@@ -10,7 +10,7 @@ class PackageTest < HawkTest
     assert status.success?, "#{output}\n#{error}"
     report = JSON.parse(output.lines.last)
 
-    assert_equal "0.1.1", report.fetch("version")
+    assert_equal "0.1.2", report.fetch("version")
     assert_empty report.fetch("frameworks")
     assert_equal 0, report.fetch("new_threads")
     assert_equal Dir["lib/**/*.rb"].tally, report.fetch("runtime_files").tally
