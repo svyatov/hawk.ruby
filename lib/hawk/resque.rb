@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../hawk"
+require_relative "../hawk" unless defined?(Hawk.init)
 require "resque"
 require "resque/failure"
 

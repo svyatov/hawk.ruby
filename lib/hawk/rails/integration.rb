@@ -36,9 +36,6 @@ module Hawk
       ActionCable.install
       ActiveJob.install
       Breadcrumbs::Rails.install if configuration.breadcrumbs_rails
-      require_relative "../sidekiq" if defined?(::Sidekiq)
-      require_relative "../resque" if defined?(::Resque)
-      require_relative "../delayed_job" if defined?(::Delayed::Worker)
       nil
     end
   end

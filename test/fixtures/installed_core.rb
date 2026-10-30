@@ -4,7 +4,7 @@ require "bundler/setup"
 require "json"
 
 before = Thread.list.size
-require "hawk"
+Bundler.require
 loaded_threads = Thread.list.size - before
 
 expected = ENV.fetch("HAWK_PACKAGE_ROOT")

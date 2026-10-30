@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require_relative "../hawk"
+require_relative "../hawk" unless defined?(Hawk.init)
 
 module Hawk
   # Request scope covers application calls and the deferred response body.
   # Rack middleware reporting application and deferred response-body errors.
   #
   # @example Add to config.ru
-  #   require "hawk/rack"
+  #   require "hawk-ruby"
   #   use Hawk::Rack
   #   run app
   class Rack
