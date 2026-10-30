@@ -86,7 +86,16 @@ module HawkRelease
     def create_release
       run!("gh", "release", "create", @tag, "--verify-tag", "--target", @commit, "--title", @tag,
            "--draft", "--notes-file", @notes, "--repo", @repository)
-      github_release || raise(Failure, "Created GitHub release could not be read")
+      wait_for_created_release
+    end
+
+    def wait_for_created_release
+      [0, 1, 2, 4, 8].each do |delay|
+        sleep(delay) if delay.positive?
+        release = github_release
+        return release if release
+      end
+      raise Failure, "Created GitHub release could not be read after 5 attempts"
     end
 
     def run!(*)
