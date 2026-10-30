@@ -9,11 +9,11 @@ The workflow builds the gem once, inventories its packaged files and external ru
 To cut a version:
 
 1. Update the version, changelog, and installation example. Run the checks and merge to `main`.
-2. Create a signed version tag, for example `git tag -s v0.1.1 -m 'Release 0.1.1'`.
-3. Push the tag with `git push origin v0.1.1` and monitor the Release workflow.
+2. Create a signed version tag, for example `git tag -s v0.1.2 -m 'Release 0.1.2'`.
+3. Push the tag with `git push origin v0.1.2` and monitor the Release workflow.
 4. Review the successful build and approve the `release` environment deployment.
 
-To verify downloaded release assets, run `gh attestation verify hawk-ruby-0.1.1.gem --repo svyatov/hawk.ruby --signer-workflow svyatov/hawk.ruby/.github/workflows/release.yml`, then repeat for `sbom.cdx.json`. Run `sha256sum --check SHA256SUMS` from the download directory. RubyGems serves its gem attestation at `https://rubygems.org/api/v1/attestations/hawk-ruby-0.1.1.json`.
+To verify downloaded release assets, run `gh attestation verify hawk-ruby-0.1.2.gem --repo svyatov/hawk.ruby --signer-workflow svyatov/hawk.ruby/.github/workflows/release.yml`, then repeat for `sbom.cdx.json`. Run `sha256sum --check SHA256SUMS` from the download directory. RubyGems serves its gem attestation at `https://rubygems.org/api/v1/attestations/hawk-ruby-0.1.2.json`.
 
 ## Recover a partial publication
 
