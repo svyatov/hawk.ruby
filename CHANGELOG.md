@@ -6,6 +6,11 @@ Versions follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Added
+
+- Support standard Bundler loading without a custom `require:` option.
+- Detect loaded Rails, Rake, Sidekiq, Resque, and Delayed Job integrations during startup.
+
 ## [0.1.1] - 2026-10-29
 
 ### Added
