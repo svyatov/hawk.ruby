@@ -5,7 +5,7 @@ source "https://rubygems.org"
 gemspec
 
 gem "bundler-audit", "~> 0.9.3", require: false
-gem "crap4ruby", "0.2.1", require: false
+gem "crap4ruby", "0.2.2", require: false
 gem "minitest", ">= 5.25", "< 7"
 gem "rake", "~> 13.4", require: false
 gem "rbs", "~> 4.2", require: false
