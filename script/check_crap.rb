@@ -15,7 +15,8 @@ unless receipt.fetch("report") == Digest::SHA256.file(report).hexdigest
   abort "Coverage report changed after verification"
 end
 
-output, error, status = Open3.capture3("bundle", "exec", "crap4ruby", "lib", "--coverage", report, "--threshold", "10")
+output, error, status = Open3.capture3("bundle", "exec", "crap4ruby", "lib", "--coverage", report,
+                                       "--threshold", "10", "--verbose")
 $stdout.write(output)
 $stderr.write(error)
 abort "CRAP limit failed" unless status.success?
